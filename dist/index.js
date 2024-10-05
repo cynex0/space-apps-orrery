@@ -21,22 +21,22 @@ const sizes = {
 const scene = new THREE.Scene()
 
 // Add ambient light
-const ambientLight = new THREE.AmbientLight(0x474747, 0.1);
+// const ambientLight = new THREE.AmbientLight(0x474747, 0.5);
 // ambientLight.castShadow = true
-scene.add(ambientLight);
+// scene.add(ambientLight);
 //#endregion
 
 //#region Texture loader
 const textureLoader = new THREE.TextureLoader()
-const starsTexture = textureLoader.load('static/8k_stars.jpg')
 
 const skybox = new THREE.Mesh(
     new THREE.SphereGeometry(500000, 60, 40), 
     new THREE.MeshStandardMaterial({
-        map: starsTexture,
+        map: textureLoader.load('static/8k_stars.jpg'),
         side: THREE.BackSide,
-        emissive: new THREE.Color(0x111111),
-        emissiveIntensity: 0.5,
+        emissive: new THREE.Color(0xffffff),
+        emissiveMap: textureLoader.load('static/8k_stars_alpha.jpg'),
+        emissiveIntensity: 0.05,
       })
 );
 scene.add(skybox);

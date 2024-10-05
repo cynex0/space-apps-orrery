@@ -39,7 +39,7 @@ export default function loadSunAndPlanetData(textureLoader) {
                 map: textureLoader.load('static/earth/8k_earth_daymap.jpg'),
                 // normalMap: earthNormalMap,
                 specularColor: new THREE.Color(0x888888),
-                specularIntensityMap: textureLoader.load('static/earth/8k_earth_normal_map.tif'),
+                specularIntensityMap: textureLoader.load('static/earth/8k_earth_specular_map.tif'),
                 bumpMap: textureLoader.load('static/earth/earthbump1k_upscale_smooth2.jpg'),
                 bumpScale: 1,
                 roughness: 0.9,
