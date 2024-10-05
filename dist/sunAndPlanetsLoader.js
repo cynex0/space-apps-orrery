@@ -34,39 +34,29 @@ export default function loadSunAndPlanetData(textureLoader) {
         })],
         [null], // Mercury
         [null], // Venus
-        [new THREE.MeshPhysicalMaterial({ // Earth
-            map: textureLoader.load('static/8k_earth_daymap.jpg'),
-            roughness: 1,
-            dispersion: 1,
-            reflectivity: 0,
-            specularIntensity: 0,
-            metalness: 0,
-            clearcoat: 0.3,
-            clearcoatRoughness: 0.8,
-            emissive: new THREE.Color(0x0066ff),
-            emissiveIntensity: 0.1,
-        }),
-        new THREE.MeshPhysicalMaterial({
-            map: textureLoader.load('static/8k_earth_daymap.jpg'),
-            // normalMap: earthNormalMap,
-            specularColor: new THREE.Color(0x888888),
-            specularIntensityMap: textureLoader.load('static/8k_earth_normal_map.tif'),
-            bumpMap: textureLoader.load('static/earthbump1k_upscale_smooth2.jpg'),
-            bumpScale: 0.01,
-            roughness: 0.9,
-            metalness: 0,
-            clearcoat: 1,
-            clearcoatRoughness: 0.5,
-            emissive: new THREE.Color(0x38388f),
-            emissiveIntensity: 0.5,
-        })],
-        [new THREE.MeshStandardMaterial({
-            map: textureLoader.load('static/earthcloudmap.jpg'),
-            // alphaMap: earthCloudTransparency,
-            transparent: true,
-            opacity: 0.25,
-            side: THREE.DoubleSide
-        })],
+        [ // Earth
+            new THREE.MeshPhysicalMaterial({
+                map: textureLoader.load('static/8k_earth_daymap.jpg'),
+                // normalMap: earthNormalMap,
+                specularColor: new THREE.Color(0x888888),
+                specularIntensityMap: textureLoader.load('static/8k_earth_normal_map.tif'),
+                bumpMap: textureLoader.load('static/earthbump1k_upscale_smooth2.jpg'),
+                bumpScale: 1,
+                roughness: 0.9,
+                metalness: 0,
+                clearcoat: 1,
+                clearcoatRoughness: 0.5,
+                emissive: new THREE.Color(0x38388f),
+                emissiveIntensity: 0.1,
+            }),
+            new THREE.MeshStandardMaterial({
+                map: textureLoader.load('static/8k_earth_clouds.jpg'),
+                // alphaMap: textureLoader.load('static/8k_earth_clouds.jpg'),
+                transparent: true,
+                opacity: 0.5,
+                side: THREE.DoubleSide
+            })
+        ],
         [null], // Mars
         [null], // Jupiter
         [null], // Saturn
@@ -76,16 +66,23 @@ export default function loadSunAndPlanetData(textureLoader) {
 
     const sunAndPlanets = [];
 
-    for (let index = 0; index <= 9; index++) {
-        for (let layer = 0; layer < sunAndPlanetsMats[index].length; layer++){
-            sunAndPlanets.push({
-                resolution: 256,
-                position: sunAndPlanetsPositions[index],
-                scale: sunAndPlanetsScales[index] + (10000 / AU_TO_METERS) * layer,
-                mat: sunAndPlanetsMats[index][layer]
-            })
+    for (let planet = 0; planet <= 9; planet++) {
+        for (let layer = 0; layer < sunAndPlanetsMats[planet]?.length; layer++){
+            layer == 0 ?
+                sunAndPlanets.push([{
+                    resolution: 256,
+                    position: sunAndPlanetsPositions[planet],
+                    scale: sunAndPlanetsScales[planet],
+                    mat: sunAndPlanetsMats[planet][layer]
+                }]) :
+                sunAndPlanets[planet].push({
+                    resolution: 256,
+                    position: sunAndPlanets[planet][layer - 1].position,
+                    scale: sunAndPlanets[planet][layer - 1].scale + (10000 / AU_TO_METERS),
+                    mat: sunAndPlanetsMats[planet][layer]
+                })
         }
     }
-
+    console.log(sunAndPlanets)
     return sunAndPlanets;
 }

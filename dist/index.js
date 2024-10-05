@@ -21,7 +21,7 @@ const sizes = {
 const scene = new THREE.Scene()
 
 // Add ambient light
-const ambientLight = new THREE.AmbientLight(0x474747, 0.65);
+const ambientLight = new THREE.AmbientLight(0x474747, 0.1);
 // ambientLight.castShadow = true
 scene.add(ambientLight);
 //#endregion
@@ -34,7 +34,9 @@ const skybox = new THREE.Mesh(
     new THREE.SphereGeometry(500000, 60, 40), 
     new THREE.MeshStandardMaterial({
         map: starsTexture,
-        side: THREE.BackSide
+        side: THREE.BackSide,
+        emissive: new THREE.Color(0x111111),
+        emissiveIntensity: 0.5,
       })
 );
 scene.add(skybox);
@@ -77,9 +79,9 @@ composer.addPass(renderPass);
 
 const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    1.5,   // Strength
+    1.2,   // Strength
     1,   // Radius
-    0.1   // Threshold
+    0.33   // Threshold
 );
 composer.addPass(bloomPass);
 //#endregion
@@ -92,16 +94,19 @@ const meshStore = new MeshStore(scene, camera, renderer,
 );
 
 const sunAndPlanetData = loadSunAndPlanetData(textureLoader);
-sunAndPlanetData.forEach(object => {
-    if (object.mat && object.position) {
-        meshStore.createSphere(object.scale, object.resolution,
-            object.resolution, object.mat, object.position)
-    }
+console.log(sunAndPlanetData)
+sunAndPlanetData.forEach(planet => {
+    planet.forEach(layer => {
+        if (layer.mat && layer.position) {
+            meshStore.createSphere(layer.scale, layer.resolution,
+                layer.resolution, layer.mat, layer.position)
+        }
+    })
 })
 //#endregion
 
 //#region Sun light
-const light = new THREE.PointLight(0xffffff, 5000);
+const light = new THREE.PointLight(0xffffff, 1000);
 light.position.set(0, 0, 0)
 // light.castShadow = true
 
@@ -124,16 +129,16 @@ controls.enableZoom = true;
 controls.enableDamping = true;
 
 controls.target.set(
-    sunAndPlanetData[3].position.x,
-    sunAndPlanetData[3].position.y,
+    sunAndPlanetData[3][0].position.x,
+    sunAndPlanetData[3][0].position.y,
 )
 const cameraAnimator = new CameraAnimator(controls)
 //#endregion
 
 //#region Main loop
-camera.position.x = sunAndPlanetData[3].position.x
-camera.position.y = sunAndPlanetData[3].position.y
-camera.position.z = sunAndPlanetData[3].position.z
+camera.position.x = sunAndPlanetData[3][0].position.x
+camera.position.y = sunAndPlanetData[3][0].position.y
+camera.position.z = sunAndPlanetData[3][0].position.z
 
 const clock = new THREE.Clock()
 
