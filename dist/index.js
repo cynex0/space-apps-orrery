@@ -20,7 +20,20 @@ const textureLoader = new THREE.TextureLoader()
 const earthTexture = textureLoader.load('static/8k_earth_daymap.jpg')
 const earthNormalMap = textureLoader.load('static/8k_earth_normal_map_inverted.tif')
 const earthSpecularMap = textureLoader.load('static/8k_earth_normal_map.tif')
+const earthBumpMap = textureLoader.load('static/earthbump1k_upscale_smooth2.jpg')
+const earthCloudTexture = textureLoader.load('static/earthcloudmap.jpg')
+const earthCloudTransparency = textureLoader.load('static/earthcloudmaptrans.jpg')
 const sunTexture = textureLoader.load('static/8k_sun.jpg')
+const starsTexture = textureLoader.load('static/8k_stars.jpg')
+
+const skybox = new THREE.Mesh(
+    new THREE.SphereGeometry(500000, 60, 40), 
+    new THREE.MeshStandardMaterial({
+        map: starsTexture,
+        side: THREE.BackSide
+      })
+);
+scene.add(skybox);
 
 function createSphere(radius, wDiv, hDiv, mat, pos) {
     const geo = new THREE.SphereGeometry(radius, wDiv, hDiv)
@@ -52,12 +65,22 @@ const earth = createSphere(1, 512, 512,
         // normalMap: earthNormalMap,
         specularColor: new THREE.Color(0x888888),
         specularIntensityMap: earthSpecularMap,
+        bumpMap: earthBumpMap,
+        bumpScale: 0.01,
         roughness: 0.9,
         metalness: 0,
         clearcoat: 1,
         clearcoatRoughness: 0.5,
-        emissive: new THREE.Color(0x0066ff),
-        emissiveIntensity: 0.05,
+        emissive: new THREE.Color(0x38388f),
+        emissiveIntensity: 0.5,
+    }), {x : 0, y : 0, z : 0})
+const earthClouds = createSphere(1.005, 512, 512, 
+    new THREE.MeshStandardMaterial({
+        map: earthCloudTexture,
+        // alphaMap: earthCloudTransparency,
+        transparent: true,
+        opacity: 0.25,
+        side: THREE.DoubleSide
     }), {x : 0, y : 0, z : 0})
 
 const sun = createSphere(109.2, 128, 128, 
