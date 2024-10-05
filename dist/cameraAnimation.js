@@ -18,6 +18,11 @@ class CameraAnimator {
     }
 
     animate(target) {
+        this.initialPosition = new Vector3(
+            this.controls.target.x,
+            this.controls.target.y,
+            this.controls.target.z,
+        );
         this.targetPosition = target;
         this.animationElapsed = 0;
     }
