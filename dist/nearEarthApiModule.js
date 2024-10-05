@@ -57,12 +57,14 @@ export const calculatePosition = (orbitalElements) => {
     const nu = 2 * Math.atan2(Math.sqrt(1 + eccentricity) * Math.sin(E / 2),
                                Math.sqrt(1 - eccentricity) * Math.cos(E / 2));
 
+    const adjustedNu = nu + wRad; 
+
     // Calculate distance (r) from the central body
     const r = semiMajorAxis * (1 - eccentricity * Math.cos(E)); // Distance from the central body
 
     // Calculate position in the orbital plane (x, y)
-    const x = r * (Math.cos(nu)); // Position in the orbital plane
-    const y = r * (Math.sin(nu)); // Position in the orbital plane
+    const x = r * (Math.cos(adjustedNu)); // Position in the orbital plane
+    const y = r * (Math.sin(adjustedNu)); // Position in the orbital plane
 
     // Rotate to 3D space
     const z = y * Math.sin(inclination); // z-position based on inclination
@@ -88,5 +90,5 @@ const toJulianDay = (date) => {
 
     const julianDay = day + Math.floor((153 * m + 2) / 5) + (365 * y) + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
     
-    return julianDay; // Returns Julian Day
+    return julianDay; 
 };
