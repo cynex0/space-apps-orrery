@@ -11,7 +11,11 @@ class CameraAnimator {
 
     constructor(controls) {
         this.controls = controls;
-        this.initialPosition = new Vector3(0, 0, 0);
+        this.initialPosition = new Vector3(
+            this.controls.target.x,
+            this.controls.target.y,
+            this.controls.target.z,
+        );
         this.targetPosition = this.initialPosition;
 
         this.animationElapsed = ANIMATION_TIME;

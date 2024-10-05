@@ -6,6 +6,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
 import MeshStore from './meshStore.js';
 import CameraAnimator from './cameraAnimation.js';
+import loadSunAndPlanetData from './sunAndPlanetsLoader.js';
 
 const canvas = document.querySelector('canvas.webgl')
 
@@ -27,9 +28,6 @@ scene.add(ambientLight);
 
 //#region Texture loader
 const textureLoader = new THREE.TextureLoader()
-
-const earthTexture = textureLoader.load('static/8k_earth_daymap.jpg')
-const sunTexture = textureLoader.load('static/8k_sun.jpg')
 //#endregion
 
 //#region Renderer
@@ -58,9 +56,7 @@ window.addEventListener('resize', () => {
 //#endregion
 
 //#region Camera
-const camera = new THREE.PerspectiveCamera(60, sizes.width / sizes.height, 0.1, 100000000000)
-camera.position.x = 303
-
+const camera = new THREE.PerspectiveCamera(10, sizes.width / sizes.height, 0.1, 100000000000)
 scene.add(camera)
 //#endregion
 
@@ -79,15 +75,6 @@ const bloomPass = new UnrealBloomPass(
 composer.addPass(bloomPass);
 //#endregion
 
-//#region Controls
-const controls = new OrbitControls(camera, canvas)
-
-controls.enableZoom = true;
-controls.enableDamping = true;
-
-const cameraAnimator = new CameraAnimator(controls)
-//#endregion
-
 //#region Meshes
 const meshStore = new MeshStore(scene, camera, renderer,
     function (position) {
@@ -95,61 +82,17 @@ const meshStore = new MeshStore(scene, camera, renderer,
     }
 );
 
-const sunAndPlanets = window.lagrange.planet_positions.getPositions(new Date()).slice(0, 9);
-const sunAndPlanetsScale = [1.000000, 0.003504, 0.008691, 0.009149, 0.004868, 0.100398, 0.083626, 0.036422, 0.035359]
-console.log(sunAndPlanets);
-
-// Objects
-const sun = meshStore.createSphere(sunAndPlanetsScale[0], 256, 256,
-    new THREE.MeshBasicMaterial({
-        map: sunTexture,
-    }), { x: 0, y: 0, z: 0 })
-
-const mercury = meshStore.createSphere(sunAndPlanetsScale[1] * 1000, 128, 128,
-    new THREE.MeshPhysicalMaterial({
-        map: earthTexture,
-        roughness: 1,
-        dispersion: 1,
-        reflectivity: 0,
-        specularIntensity: 0,
-        metalness: 0,
-        clearcoat: 0.3,
-        clearcoatRoughness: 0.8,
-        emissive: new THREE.Color(0x0066ff),
-        emissiveIntensity: 10,
-    }), sunAndPlanets[1].position)
-
-const venus = meshStore.createSphere(sunAndPlanetsScale[2] * 1000, 128, 128,
-    new THREE.MeshPhysicalMaterial({
-        map: earthTexture,
-        roughness: 1,
-        dispersion: 1,
-        reflectivity: 0,
-        specularIntensity: 0,
-        metalness: 0,
-        clearcoat: 0.3,
-        clearcoatRoughness: 0.8,
-        emissive: new THREE.Color(0x0066ff),
-        emissiveIntensity: 10,
-    }), sunAndPlanets[2].position)
-
-const earth = meshStore.createSphere(sunAndPlanetsScale[3] * 1000, 512, 512,
-    new THREE.MeshPhysicalMaterial({
-        map: earthTexture,
-        roughness: 1,
-        dispersion: 1,
-        reflectivity: 0,
-        specularIntensity: 0,
-        metalness: 0,
-        clearcoat: 0.3,
-        clearcoatRoughness: 0.8,
-        emissive: new THREE.Color(0x0066ff),
-        emissiveIntensity: 10,
-    }), sunAndPlanets[3].position)
+const sunAndPlanetData = loadSunAndPlanetData(textureLoader);
+sunAndPlanetData.forEach(object => {
+    if (object.mat && object.position) {
+        meshStore.createSphere(object.scale, object.resolution,
+            object.resolution, object.mat, object.position)
+    }
+})
 //#endregion
 
 //#region Sun light
-const light = new THREE.PointLight(0xffffff, 50000);
+const light = new THREE.PointLight(0xffffff, 5000);
 light.position.set(0, 0, 0)
 // light.castShadow = true
 
@@ -161,7 +104,28 @@ light.position.set(0, 0, 0)
 scene.add(light)
 //#endregion
 
+//#region Controls
+const controls = new OrbitControls(camera, canvas)
+
+controls.distance = 0.2
+controls.minDistance = 0.2;
+controls.maxDistance = 100;
+controls.zoomSpeed = 5;
+controls.enableZoom = true;
+controls.enableDamping = true;
+
+controls.target.set(
+    sunAndPlanetData[3].position.x,
+    sunAndPlanetData[3].position.y,
+)
+const cameraAnimator = new CameraAnimator(controls)
+//#endregion
+
 //#region Main loop
+camera.position.x = sunAndPlanetData[3].position.x
+camera.position.y = sunAndPlanetData[3].position.y
+camera.position.z = sunAndPlanetData[3].position.z
+
 const clock = new THREE.Clock()
 
 let elapsedTime = 0;
