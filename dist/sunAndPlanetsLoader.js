@@ -36,11 +36,11 @@ export default function loadSunAndPlanetData(textureLoader) {
         [null], // Venus
         [ // Earth
             new THREE.MeshPhysicalMaterial({
-                map: textureLoader.load('static/8k_earth_daymap.jpg'),
+                map: textureLoader.load('static/earth/8k_earth_daymap.jpg'),
                 // normalMap: earthNormalMap,
                 specularColor: new THREE.Color(0x888888),
-                specularIntensityMap: textureLoader.load('static/8k_earth_normal_map.tif'),
-                bumpMap: textureLoader.load('static/earthbump1k_upscale_smooth2.jpg'),
+                specularIntensityMap: textureLoader.load('static/earth/8k_earth_normal_map.tif'),
+                bumpMap: textureLoader.load('static/earth/earthbump1k_upscale_smooth2.jpg'),
                 bumpScale: 1,
                 roughness: 0.9,
                 metalness: 0,
@@ -50,7 +50,7 @@ export default function loadSunAndPlanetData(textureLoader) {
                 emissiveIntensity: 0.1,
             }),
             new THREE.MeshStandardMaterial({
-                map: textureLoader.load('static/8k_earth_clouds.jpg'),
+                map: textureLoader.load('static/earth/8k_earth_clouds.jpg'),
                 // alphaMap: textureLoader.load('static/8k_earth_clouds.jpg'),
                 transparent: true,
                 opacity: 0.5,
