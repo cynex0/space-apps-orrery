@@ -1,36 +1,57 @@
-import {OrbitControls} from 'https://unpkg.com/three@0.127.0/examples/jsm/controls/OrbitControls.js'
-import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js';
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+
+import MeshStore from './meshStore.js';
+import CameraAnimator from './cameraAnimation.js';
+import loadSunAndPlanetData from './sunAndPlanetsLoader.js';
 
 const canvas = document.querySelector('canvas.webgl')
 
-// Scene
-const scene = new THREE.Scene()
-
-const textureLoader = new THREE.TextureLoader()
-const myTexture = textureLoader.load('static/image.png')
-
-// Object
-const geometry = new THREE.BoxGeometry(1, 1, 1)
-const geometry2 = new THREE.DodecahedronGeometry(0.5, 3)
-const material = new THREE.MeshBasicMaterial({
-    map: myTexture
-})
-const boxMesh = new THREE.Mesh(geometry, material)
-const sphereMesh = new THREE.Mesh(geometry2, material)
-scene.add(boxMesh)
-// scene.add(sphereMesh)
-boxMesh.position.x = 0
-boxMesh.position.y = 0.8
-sphereMesh.position.x = -1.6
-sphereMesh.position.y = 0.5
-geometry.center()
-// Sizes
+//#region Sizes
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
 }
+//#endregion
 
-// Renderer gets updated each time window is resized
+//#region Scene
+const scene = new THREE.Scene()
+
+// Add ambient light
+const ambientLight = new THREE.AmbientLight(0x474747, 0.1);
+// ambientLight.castShadow = true
+scene.add(ambientLight);
+//#endregion
+
+//#region Texture loader
+const textureLoader = new THREE.TextureLoader()
+const starsTexture = textureLoader.load('static/8k_stars.jpg')
+
+const skybox = new THREE.Mesh(
+    new THREE.SphereGeometry(500000, 60, 40), 
+    new THREE.MeshStandardMaterial({
+        map: starsTexture,
+        side: THREE.BackSide,
+        emissive: new THREE.Color(0x111111),
+        emissiveIntensity: 0.5,
+      })
+);
+scene.add(skybox);
+
+//#region Renderer
+const renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    alpha: true,
+})
+renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.shadowMap.enabled = true;
+//#endregion
+
+//Renderer gets updated each time window is resized
 window.addEventListener('resize', () => {
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
@@ -41,40 +62,102 @@ window.addEventListener('resize', () => {
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
+    composer.setSize(sizes.width, sizes.height);
 })
+//#endregion
 
-// Camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.z = 3
+//#region Camera
+const camera = new THREE.PerspectiveCamera(10, sizes.width / sizes.height, 0.1, 100000000000)
 scene.add(camera)
+//#endregion
 
-// Controls
+//#region Effects
+const composer = new EffectComposer(renderer);
+
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    1.2,   // Strength
+    1,   // Radius
+    0.33   // Threshold
+);
+composer.addPass(bloomPass);
+//#endregion
+
+//#region Meshes
+const meshStore = new MeshStore(scene, camera, renderer,
+    function (position) {
+        cameraAnimator.animate(position)
+    }
+);
+
+const sunAndPlanetData = loadSunAndPlanetData(textureLoader);
+console.log(sunAndPlanetData)
+sunAndPlanetData.forEach(planet => {
+    planet.forEach(layer => {
+        if (layer.mat && layer.position) {
+            meshStore.createSphere(layer.scale, layer.resolution,
+                layer.resolution, layer.mat, layer.position)
+        }
+    })
+})
+//#endregion
+
+//#region Sun light
+const light = new THREE.PointLight(0xffffff, 1000);
+light.position.set(0, 0, 0)
+// light.castShadow = true
+
+// light.shadow.mapSize.width = 512 // default
+// light.shadow.mapSize.height = 512 // default
+// light.shadow.camera.near = 0.5 // default
+// light.shadow.camera.far = 500 // default
+
+scene.add(light)
+//#endregion
+
+//#region Controls
 const controls = new OrbitControls(camera, canvas)
 
-controls.enableZoom = false;
-controls.enableDamping = true
+controls.distance = 0.2
+controls.minDistance = 0.2;
+controls.maxDistance = 100;
+controls.zoomSpeed = 5;
+controls.enableZoom = true;
+controls.enableDamping = true;
 
-const renderer = new THREE.WebGLRenderer({
-    canvas: canvas,
-    alpha: true,
-})
-renderer.setSize(sizes.width, sizes.height)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+controls.target.set(
+    sunAndPlanetData[3][0].position.x,
+    sunAndPlanetData[3][0].position.y,
+)
+const cameraAnimator = new CameraAnimator(controls)
+//#endregion
+
+//#region Main loop
+camera.position.x = sunAndPlanetData[3][0].position.x
+camera.position.y = sunAndPlanetData[3][0].position.y
+camera.position.z = sunAndPlanetData[3][0].position.z
 
 const clock = new THREE.Clock()
 
+let elapsedTime = 0;
+
 const tick = () => {
-    const elapsedTime = clock.getElapsedTime()
-    boxMesh.rotateX(30 * 0.0003)
-    boxMesh.rotateY(30 * 0.0003)
-    sphereMesh.rotateY(30 * 0.0003)
-    // mesh.position.y = Math.sin(elapsedTime) *0.1
-    boxMesh.position.z = Math.sin(elapsedTime) * 1
+    const delta = clock.getElapsedTime() - elapsedTime
+    elapsedTime = elapsedTime + delta
 
     controls.update()
     controls.enableDamping = true
+
+    cameraAnimator.update(delta)
+
     renderer.render(scene, camera)
+    composer.render()
+
     window.requestAnimationFrame(tick)
 };
+//#endregion
 
 tick()

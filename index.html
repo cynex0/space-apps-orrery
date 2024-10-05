@@ -8,9 +8,24 @@
 </head>
 
 <body>
+    <div class="fixed">
+        <img src="./static/nasa.png" id="nasa">
+    </div>
+
     <canvas class="webgl"></canvas>
 
+	<!-- https://github.com/mgvez/planet-positions -->
+	<script src="./planet-positions.js"></script>
+
     <!-- CDN Link to Three.js -->
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+          }
+        }
+      </script>
     <script type="module" src="./index.js"></script>
 </body>
 
