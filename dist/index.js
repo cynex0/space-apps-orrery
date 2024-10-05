@@ -5,25 +5,24 @@ const canvas = document.querySelector('canvas.webgl')
 
 // Scene
 const scene = new THREE.Scene()
+scene.background = new THREE.Color(0x000000)
 
 const textureLoader = new THREE.TextureLoader()
 const myTexture = textureLoader.load('static/image.png')
 
-// Object
-const geometry = new THREE.BoxGeometry(1, 1, 1)
-const geometry2 = new THREE.DodecahedronGeometry(0.5, 3)
-const material = new THREE.MeshBasicMaterial({
-    map: myTexture
-})
-const boxMesh = new THREE.Mesh(geometry, material)
-const sphereMesh = new THREE.Mesh(geometry2, material)
-scene.add(boxMesh)
-// scene.add(sphereMesh)
-boxMesh.position.x = 0
-boxMesh.position.y = 0.8
-sphereMesh.position.x = -1.6
-sphereMesh.position.y = 0.5
-geometry.center()
+function createSphere(radius, wDiv, hDiv, mat, pos) {
+    const geo = new THREE.SphereGeometry(radius, wDiv, hDiv)
+    const mesh = new THREE.Mesh(geo, mat) 
+    mesh.position.set(pos.x, pos.y, pos.z)
+    scene.add(mesh)
+    return mesh
+}
+
+// Objects
+const sunMesh = createSphere(3, 64, 64, new THREE.MeshBasicMaterial(), {x: 0, y: 0, z: 0})
+const planetMesh = createSphere(0.2, 16, 16, new THREE.MeshBasicMaterial(), {x: 5, y: 5, z: 5})
+
+
 // Sizes
 const sizes = {
     width: window.innerWidth,
@@ -51,7 +50,7 @@ scene.add(camera)
 // Controls
 const controls = new OrbitControls(camera, canvas)
 
-controls.enableZoom = false;
+controls.enableZoom = true;
 controls.enableDamping = true
 
 const renderer = new THREE.WebGLRenderer({
@@ -65,11 +64,6 @@ const clock = new THREE.Clock()
 
 const tick = () => {
     const elapsedTime = clock.getElapsedTime()
-    boxMesh.rotateX(30 * 0.0003)
-    boxMesh.rotateY(30 * 0.0003)
-    sphereMesh.rotateY(30 * 0.0003)
-    // mesh.position.y = Math.sin(elapsedTime) *0.1
-    boxMesh.position.z = Math.sin(elapsedTime) * 1
 
     controls.update()
     controls.enableDamping = true
