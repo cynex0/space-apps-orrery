@@ -1,4 +1,4 @@
-import { Vector3 } from "./three.js";
+import { Vector3 } from 'three';
 import bezier from "./bezier.js";
 
 const ANIMATION_TIME = 1;

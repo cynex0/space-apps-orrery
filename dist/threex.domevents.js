@@ -64,7 +64,7 @@
 
 //
 
-import * as THREE from './three.js';
+import * as THREE from 'three';
 
 /** @namespace */
 var THREEx		= THREEx 		|| {};
