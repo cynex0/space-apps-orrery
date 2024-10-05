@@ -39,16 +39,6 @@ const skybox = new THREE.Mesh(
 );
 scene.add(skybox);
 
-function createSphere(radius, wDiv, hDiv, mat, pos) {
-    const geo = new THREE.SphereGeometry(radius, wDiv, hDiv)
-    const mesh = new THREE.Mesh(geo, mat) 
-    mesh.position.set(pos.x, pos.y, pos.z)
-    // mesh.castShadow = true
-    
-    scene.add(mesh)
-    return mesh
-}
-
 //#region Renderer
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
