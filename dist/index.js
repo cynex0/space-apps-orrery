@@ -8,7 +8,7 @@ const scene = new THREE.Scene()
 
 // Texture loader
 const textureLoader = new THREE.TextureLoader()
-const myTexture = textureLoader.load('static/8k_earth_daymap.jpg')
+const myTexture = textureLoader.load('static/2k_earth_daymap.jpg')
 
 // Object
 const sphere = new THREE.DodecahedronGeometry(0.5, 4)
