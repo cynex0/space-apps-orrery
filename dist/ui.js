@@ -1,5 +1,5 @@
 import ObjectListener from "./objectListener.js"
-import loadSunAndPlanetData from './sunAndPlanetsLoader.js';
+import loadBodyData from './sunAndPlanetsLoader.js';
 
 document.getElementById("display_labels")
     .addEventListener('change', function () {
@@ -16,7 +16,7 @@ document.getElementById("display_labels")
         }
     });
 
-const earthMesh = loadSunAndPlanetData()[3];
+const earthMesh = loadBodyData()[3][0];
 
 window.targetedMesh = new ObjectListener(() => {
     if (window.targetedMesh?.get()) {
@@ -32,9 +32,9 @@ window.targetedMesh = new ObjectListener(() => {
             distance.innerHTML =
                 `${mesh.name} is ${Math.round(
                     Math.sqrt(
-                        Math.pow(earthMesh[0].position.x - mesh.position.x, 2) +
-                        Math.pow(earthMesh[0].position.y - mesh.position.y, 2) +
-                        Math.pow(earthMesh[0].position.z - mesh.position.z, 2)
+                        Math.pow(earthMesh.position.x - mesh.position.x, 2) +
+                        Math.pow(earthMesh.position.y - mesh.position.y, 2) +
+                        Math.pow(earthMesh.position.z - mesh.position.z, 2)
                     ) / 20 * 100
                 ) / 100
                 } AU away from Earth`;
