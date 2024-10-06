@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 const AU_TO_METERS = 1.496e11;
 
-const sunAndPlanetsScales = [
+const bodyScales = [
     1.000000, // Sun
     0.003504, // Mercury
     0.008691, // Venus
@@ -11,10 +11,11 @@ const sunAndPlanetsScales = [
     0.100398, // Jupiter
     0.083626, // Saturn
     0.036422, // Uranus
-    0.035359 // Neptune
+    0.035359, // Neptune
+    0.002495, // Moon
 ]
 
-const sunAndPlanetsNames = [
+const bodyNames = [
     'Sun',
     'Mercury',
     'Venus',
@@ -23,12 +24,13 @@ const sunAndPlanetsNames = [
     'Jupiter',
     'Saturn',
     'Uranus',
-    'Neptune'
+    'Neptune',
+    'Moon'
 ]
 
 const sunAndPlanetsPositions = window.lagrange.planet_positions
     .getPositions(new Date())
-    .slice(0, 9)
+    .filter(obj => {return bodyNames.map(s => s.toLowerCase()).includes(obj.name)})
     .map(element => {
         const obj = {
             x: element.position.x / AU_TO_METERS * 20,
@@ -159,20 +161,28 @@ export default function loadSunAndPlanetData(textureLoader) {
             side: THREE.DoubleSide,
             emissive: new THREE.Color(0x2d68c4),
             emissiveIntensity: 0.01,
-        })] // Neptune
+        })], // Neptune
+        [new THREE.MeshPhysicalMaterial({
+            map: textureLoader.load('static/moon/4k_moon.jpg'),
+            roughness: 0.95,
+            metalness: 0,
+            emissive: new THREE.Color(0xb0b0b0),
+            emissiveIntensity: 0.007,
+            specularColor: new THREE.Color(0x888888)
+        })], // Moon
     ]
 
     const sunAndPlanets = [];
 
-    for (let planet = 0; planet <= 9; planet++) {
+    for (let planet = 0; planet <= sunAndPlanetsMats.length; planet++) {
         for (let layer = 0; layer < sunAndPlanetsMats[planet]?.length; layer++){
             layer == 0 ?
                 sunAndPlanets.push([{
                     resolution: 256,
                     position: sunAndPlanetsPositions[planet],
-                    scale: sunAndPlanetsScales[planet],
+                    scale: bodyScales[planet],
                     mat: sunAndPlanetsMats[planet][layer],
-                    name: sunAndPlanetsNames[planet],
+                    name: bodyNames[planet],
                 }]) :
                 sunAndPlanets[planet].push({
                     resolution: 256,
