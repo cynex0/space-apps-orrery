@@ -5,7 +5,7 @@ const AU_TO_METERS = 1.496e11; // 1 AU in meters
 
 export default async function loadSmallBodies(scene, textureLoader) {
    
-    const smallBodiesOrbitalData = await getOrbitalElements(100);
+    const smallBodiesOrbitalData = await getOrbitalElements(1000);
     console.log(smallBodiesOrbitalData)
 
     const smallBodyMaterial = new THREE.MeshPhysicalMaterial({

@@ -1,21 +1,25 @@
 import * as THREE from 'three';
 
-export const getOrbitalElements = async (limit = 1000) => {
-    const apiUrl = '//ssd-api.jpl.nasa.gov/sbdb_query.api?fields=full_name,e,a,q,om,w,i,tp&limit=1000';
+export const getOrbitalElements = async (limit = 100) => {
+    const apiUrl = 'https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=full_name,e,a,q,om,w,i,tp&limit=' + limit;
+    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(apiUrl);
 
     try {
-        const response = await fetch(apiUrl);
+        const response = await fetch(proxyUrl);
         if (!response.ok) {
             throw new Error(`Error fetching data: ${response.statusText}`);
         }
 
         const data = await response.json();
-        return data.data;
+        // The actual data is nested under `contents`
+        const orbitalElements = JSON.parse(data.contents);
+        return orbitalElements.data;
     } catch (error) {
         console.error('Error fetching orbital elements:', error);
         return [];
     }
 };
+
 
 
 export const calculatePosition = (orbitalElements) => {
