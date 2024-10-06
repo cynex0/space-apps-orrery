@@ -30,14 +30,14 @@ const scene = new THREE.Scene()
 const textureLoader = new THREE.TextureLoader()
 
 const skybox = new THREE.Mesh(
-    new THREE.SphereGeometry(500000, 60, 40), 
+    new THREE.SphereGeometry(500000, 60, 40),
     new THREE.MeshStandardMaterial({
         map: textureLoader.load('static/8k_stars.jpg'),
         side: THREE.BackSide,
         emissive: new THREE.Color(0xffffff),
         emissiveMap: textureLoader.load('static/8k_stars_alpha.jpg'),
         emissiveIntensity: 0.01,
-      })
+    })
 );
 scene.add(skybox);
 
@@ -130,20 +130,23 @@ controls.dinamicDampingFactor = 1;
 controls.enableZoom = true;
 controls.enableDamping = true;
 
-const startPlanet = 6
+controls.addEventListener('change', (event) => {
+    const dist = Math.sqrt(Math.pow(camera.position.x, 2) +
+        Math.pow(camera.position.y, 2) +
+        Math.pow(camera.position.z, 2))
+
+    light.intensity = Math.pow(dist, 2)
+})
 
 controls.target.set(
-    sunAndPlanetData[startPlanet][0].position.x,
-    sunAndPlanetData[startPlanet][0].position.y,
-    sunAndPlanetData[startPlanet][0].position.z
+    sunAndPlanetData[3][0].position.x,
+    sunAndPlanetData[3][0].position.y,
+    sunAndPlanetData[3][0].position.z
 )
 const cameraAnimator = new CameraAnimator(controls)
 //#endregion
 
 //#region Main loop
-camera.position.x = sunAndPlanetData[startPlanet][0].position.x
-camera.position.y = sunAndPlanetData[startPlanet][0].position.y
-camera.position.z = sunAndPlanetData[startPlanet][0].position.z
 
 const clock = new THREE.Clock()
 

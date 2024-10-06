@@ -47,7 +47,6 @@ class MeshStore {
             })
         }
 
-
         let potentialClick = true;
 
         this.domEvents.addEventListener(mesh, 'mousedown', function (event) {
