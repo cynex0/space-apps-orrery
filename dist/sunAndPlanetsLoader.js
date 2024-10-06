@@ -28,7 +28,7 @@ const bodyNames = [
     'Moon'
 ]
 
-const sunAndPlanetsPositions = window.lagrange.planet_positions
+const bodyPositions = window.lagrange.planet_positions
     .getPositions(new Date())
     .filter(obj => {return bodyNames.map(s => s.toLowerCase()).includes(obj.name)})
     .map(element => {
@@ -41,8 +41,8 @@ const sunAndPlanetsPositions = window.lagrange.planet_positions
         return obj
     })
 
-export default function loadSunAndPlanetData(textureLoader) {
-    const sunAndPlanetsMats = [
+export default function loadBodyData(textureLoader) {
+    const bodyMats = [
         [new THREE.MeshBasicMaterial({ // Sun
             map: textureLoader.load('static/8k_sun.jpg'),
         })],
@@ -172,26 +172,26 @@ export default function loadSunAndPlanetData(textureLoader) {
         })], // Moon
     ]
 
-    const sunAndPlanets = [];
+    const bodies = [];
 
-    for (let planet = 0; planet <= sunAndPlanetsMats.length; planet++) {
-        for (let layer = 0; layer < sunAndPlanetsMats[planet]?.length; layer++){
+    for (let body = 0; body <= bodyMats.length; body++) {
+        for (let layer = 0; layer < bodyMats[body]?.length; layer++){
             layer == 0 ?
-                sunAndPlanets.push([{
+                bodies.push([{
                     resolution: 256,
-                    position: sunAndPlanetsPositions[planet],
-                    scale: bodyScales[planet],
-                    mat: sunAndPlanetsMats[planet][layer],
-                    name: bodyNames[planet],
+                    position: bodyPositions[body],
+                    scale: bodyScales[body],
+                    mat: bodyMats[body][layer],
+                    name: bodyNames[body],
                 }]) :
-                sunAndPlanets[planet].push({
+                bodies[body].push({
                     resolution: 256,
-                    position: sunAndPlanets[planet][layer - 1].position,
-                    scale: sunAndPlanets[planet][layer - 1].scale + (300000 / AU_TO_METERS),
-                    mat: sunAndPlanetsMats[planet][layer]
+                    position: bodies[body][layer - 1].position,
+                    scale: bodies[body][layer - 1].scale + (300000 / AU_TO_METERS),
+                    mat: bodyMats[body][layer]
                 })
         }
     }
     
-    return sunAndPlanets;
+    return bodies;
 }
