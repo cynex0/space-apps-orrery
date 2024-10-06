@@ -155,8 +155,7 @@ const ringTransparencyMap = textureLoader.load('static/saturn/saturnringpattern.
 // Create a large flat plane for the rings
 const ringGeometry = new THREE.RingGeometry(0.175, 0.3, 64); // Plane size based on ring size
 
-// Rotate the plane to be horizontal
-ringGeometry.rotateX(Math.PI / 2);
+ringGeometry.rotateY(0.4665265091); // tilt
 
 // Modify UV mapping to apply the texture along the radius
 // Set UVs so that the texture is mapped radially, not across the whole plane
@@ -181,7 +180,7 @@ const ringMaterial = new THREE.MeshStandardMaterial({
 });
 
 // Create the ring mesh
-const rings = new THREE.Mesh(ringGeometry, ringMaterial);
+const rings = new THREE.Mesh(ringGeometry, ringMaterial)
 
 // Position and scale the rings
 rings.scale.set(0.006, 0.006, 0.006); // Adjust the size as needed
