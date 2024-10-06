@@ -49,8 +49,24 @@ search.addEventListener("keypress", function (event) {
         event.preventDefault();
 
         const results = window.meshStore.search(search.innerHTML);
-        if (results?.length) {
+        if (results?.length &&
+            results[0].item != window.targetedMesh.get()) {
             window.targetedMesh.set(results[0].item)
         }
+
+        // clear focus
+        search.contentEditable = false;
+        search.contentEditable = true;
     }
-}); 
+});
+
+search.addEventListener("blur", function () {
+    if (window.targetedMesh.get()) {
+        search.innerHTML = window.targetedMesh.get().name;
+    }
+})
+
+window.cameraChangeListeners = [() => {
+    search.contentEditable = false;
+    search.contentEditable = true;
+}]

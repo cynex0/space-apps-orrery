@@ -122,7 +122,7 @@ const controllerAnimator = new ControllerAnimator(camera, controls)
 //#region Meshes
 const bodyData = loadBodyData();
 
-window.meshStore = new MeshStore(scene, camera, renderer,
+window.meshStore = new MeshStore(scene, camera, controls, renderer,
     function (mesh) {
         if (mesh != window.targetedMesh.get()) {
             window.targetedMesh.set(mesh);
@@ -133,12 +133,12 @@ window.meshStore = new MeshStore(scene, camera, renderer,
 bodyData.forEach(planet => {
     planet.forEach(function (layer, index) {
         if (layer.mat && layer.position) {
-			if(layer.name){
-				if(layer.name != "Sun" && layer.name != "Moon"){
-					const { positions, opacities } = getPositions(layer.name, new Date());
-					createOrbit(scene, positions, opacities, layer.name);
-				}
-			}
+            if (layer.name) {
+                if (layer.name != "Sun" && layer.name != "Moon") {
+                    const { positions, opacities } = getPositions(layer.name, new Date());
+                    createOrbit(scene, positions, opacities, layer.name);
+                }
+            }
             const mesh = window.meshStore.createSphere(layer.scale, layer.resolution,
                 layer.resolution, layer.mat, layer.position, layer.name)
             if (layer.name == "Earth") { // default earth mesh for zoom
@@ -206,7 +206,6 @@ loadSmallBodies(window.meshStore);
 //#endregion
 
 //#region Main loop
-
 const FRAME_TIME = 1000 / 120;
 const clock = new THREE.Clock()
 
@@ -217,14 +216,27 @@ const tick = () => {
     elapsedTime = elapsedTime + delta
 
     rotationSpeeds.forEach(planet => {
-        meshStore.getMesh(planet.name).rotation.y += (360 / planet.speed) * delta
+        window.meshStore.getMesh(planet.name).rotation.y += (360 / planet.speed) * delta
     })
+
+    const cameraClone = camera.clone();
 
     controls.update()
     controls.enableDamping = true
 
     cameraAnimator.update(delta)
     controllerAnimator.update(delta)
+
+    if (Math.abs(camera.position.x - cameraClone.position.x) > 0.0000001 ||
+        Math.abs(camera.position.y - cameraClone.position.y) > 0.0000001 ||
+        Math.abs(camera.position.z - cameraClone.position.z) > 0.0000001 ||
+        camera.fov != cameraClone.fov) {
+        window.cameraChangeListeners.forEach(listener => {
+            if (listener) {
+                listener()
+            }
+        });
+    }
 
     renderer.render(scene, camera)
     composer.render()
