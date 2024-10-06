@@ -122,7 +122,7 @@ const controllerAnimator = new ControllerAnimator(camera, controls)
 //#region Meshes
 const bodyData = loadBodyData();
 
-window.meshStore = new MeshStore(scene, camera, renderer,
+window.meshStore = new MeshStore(scene, camera, controls, renderer,
     function (mesh) {
         if (mesh != window.targetedMesh.get()) {
             window.targetedMesh.set(mesh);
@@ -131,14 +131,14 @@ window.meshStore = new MeshStore(scene, camera, renderer,
 );
 
 bodyData.forEach(planet => {
-    planet.forEach(function(layer) {
+    planet.forEach(function (layer, index) {
         if (layer.mat && layer.position) {
-			if(layer.name){
-				if(layer.name != "Sun"){
-					const { positions, opacities } = getPositions(layer.name, new Date());
-					createOrbit(scene, positions, opacities);
-				}
-			}
+            if (layer.name) {
+                if (layer.name != "Sun" && layer.name != "Moon") {
+                    const { positions, opacities } = getPositions(layer.name, new Date());
+                    createOrbit(scene, positions, opacities, layer.name);
+                }
+            }
             const mesh = window.meshStore.createSphere(layer.scale, layer.resolution,
                 layer.resolution, layer.mat, layer.position, layer.name)
             if (layer.name == "Earth") { // default earth mesh for zoom
@@ -155,8 +155,7 @@ const ringTransparencyMap = textureLoader.load('static/saturn/saturnringpattern.
 // Create a large flat plane for the rings
 const ringGeometry = new THREE.RingGeometry(0.175, 0.3, 64); // Plane size based on ring size
 
-// Rotate the plane to be horizontal
-ringGeometry.rotateX(Math.PI / 2);
+ringGeometry.rotateY(0.4665265091); // tilt
 
 // Modify UV mapping to apply the texture along the radius
 // Set UVs so that the texture is mapped radially, not across the whole plane
@@ -181,7 +180,7 @@ const ringMaterial = new THREE.MeshStandardMaterial({
 });
 
 // Create the ring mesh
-const rings = new THREE.Mesh(ringGeometry, ringMaterial);
+const rings = new THREE.Mesh(ringGeometry, ringMaterial)
 
 // Position and scale the rings
 rings.scale.set(0.006, 0.006, 0.006); // Adjust the size as needed
@@ -192,21 +191,20 @@ scene.add(rings);
 
 // siderial day in seconds
 const rotationSpeeds = [
-    {name: 'Mercury', speed: 5067000},
-    {name: 'Venus', speed: -20996760},
-    {name: 'Earth', speed: 86160},
-    {name: 'Mars', speed: 88560},
-    {name: 'Jupiter', speed: 35700},
-    {name: 'Saturn', speed: 37980},
-    {name: 'Uranus', speed: 62040},
-    {name: 'Neptune', speed: 57600},
+    { name: 'Mercury', speed: 5067000 },
+    { name: 'Venus', speed: -20996760 },
+    { name: 'Earth', speed: 86160 },
+    { name: 'Mars', speed: 88560 },
+    { name: 'Jupiter', speed: 35700 },
+    { name: 'Saturn', speed: 37980 },
+    { name: 'Uranus', speed: 62040 },
+    { name: 'Neptune', speed: 57600 },
 ]
 
 loadSmallBodies(window.meshStore);
 //#endregion
 
 //#region Main loop
-
 const FRAME_TIME = 1000 / 120;
 const clock = new THREE.Clock()
 
@@ -217,14 +215,27 @@ const tick = () => {
     elapsedTime = elapsedTime + delta
 
     rotationSpeeds.forEach(planet => {
-        meshStore.getMesh(planet.name).rotation.y += (360 / planet.speed) * delta
+        window.meshStore.getMesh(planet.name).rotation.y += (360 / planet.speed) * delta
     })
+
+    const cameraClone = camera.clone();
 
     controls.update()
     controls.enableDamping = true
 
     cameraAnimator.update(delta)
     controllerAnimator.update(delta)
+
+    if (Math.abs(camera.position.x - cameraClone.position.x) > 0.0000001 ||
+        Math.abs(camera.position.y - cameraClone.position.y) > 0.0000001 ||
+        Math.abs(camera.position.z - cameraClone.position.z) > 0.0000001 ||
+        camera.fov != cameraClone.fov) {
+        window.cameraChangeListeners.forEach(listener => {
+            if (listener) {
+                listener()
+            }
+        });
+    }
 
     renderer.render(scene, camera)
     composer.render()

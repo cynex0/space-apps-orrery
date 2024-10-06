@@ -6,6 +6,7 @@ class MeshStore {
     scene;
     meshes;
     camera;
+    controls;
     renderer;
     onClick;
     domEvents;
@@ -13,9 +14,10 @@ class MeshStore {
     textContainer;
     scheduleFuzzySearchRefresh;
 
-    constructor(scene, camera, renderer, onClick, textContainer) {
+    constructor(scene, camera, controls, renderer, onClick, textContainer) {
         this.scene = scene;
         this.camera = camera;
+        this.controls = controls;
         this.renderer = renderer;
         this.onClick = onClick;
         this.textContainer = textContainer;
@@ -41,12 +43,12 @@ class MeshStore {
                 span.appendChild(textContent);
                 this.textContainer.appendChild(span);
 
-                setInterval(() => {
+                window.cameraChangeListeners.push(() => {
                     const position = this.positionToScreenCoords(mesh, span);
 
                     span.style.transform =
                         `translateX(calc(${position.x}px - 50%)) translateY(calc(${position.y}px - 50%))`;
-                }, 2);
+                });
 
                 span.addEventListener('click', function () {
                     call(mesh)
@@ -114,7 +116,7 @@ class MeshStore {
     }
 
     getMesh(name) {
-        return this.meshes.find(mesh => {return mesh.name === name})
+        return this.meshes.find(mesh => { return mesh.name === name })
     }
 
     positionToScreenCoords(mesh, element) {
