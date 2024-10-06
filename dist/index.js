@@ -144,6 +144,18 @@ sunAndPlanetData.forEach(planet => {
         }
     })
 })
+
+// siderial day in seconds
+const rotationSpeeds = [
+    {name: 'Mercury', speed: 5067000},
+    {name: 'Venus', speed: -20996760},
+    {name: 'Earth', speed: 86160},
+    {name: 'Mars', speed: 88560},
+    {name: 'Jupiter', speed: 35700},
+    {name: 'Saturn', speed: 37980},
+    {name: 'Uranus', speed: 62040},
+    {name: 'Neptune', speed: 57600},
+]
 //#endregion
 
 //#region Main loop
@@ -156,6 +168,10 @@ let elapsedTime = 0;
 const tick = () => {
     const delta = clock.getElapsedTime() - elapsedTime
     elapsedTime = elapsedTime + delta
+
+    rotationSpeeds.forEach(planet => {
+        meshStore.getMesh(planet.name).rotation.y += (360 / planet.speed) * delta
+    })
 
     controls.update()
     controls.enableDamping = true

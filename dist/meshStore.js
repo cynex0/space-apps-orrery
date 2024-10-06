@@ -21,16 +21,16 @@ class MeshStore {
         this.meshes = [];
     }
 
-    addMesh(mesh, name) {
+    addMesh(mesh) {
         this.meshes.push(mesh)
         this.scene.add(mesh)
 
         const call = this.onClick
         const domEvents = this.domEvents
 
-        if (name) {
+        if (mesh.name) {
             const span = document.createElement("span");
-            const textContent = document.createTextNode(name);
+            const textContent = document.createTextNode(mesh.name);
             span.classList.add("body-label");
 
             span.appendChild(textContent);
@@ -84,12 +84,16 @@ class MeshStore {
     createSphere(radius, wDiv, hDiv, mat, pos, name) {
         const geo = new THREE.SphereGeometry(radius, wDiv, hDiv)
         const mesh = new THREE.Mesh(geo, mat)
+        mesh.name = name
         mesh.position.set(pos.x, pos.y, pos.z)
         // mesh.castShadow = true
-
-        this.addMesh(mesh, name)
+        this.addMesh(mesh)
 
         return mesh
+    }
+
+    getMesh(name) {
+        return this.meshes.find(mesh => {return mesh.name === name})
     }
 
     positionToScreenCoords(mesh, element) {
