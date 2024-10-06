@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 
 export const getOrbitalElements = async (limit = 1000) => {
-    const apiUrl = 'http://localhost:3000/api/small-bodies';
-
+    const apiUrl = '//ssd-api.jpl.nasa.gov/sbdb_query.api?fields=full_name,e,a,q,om,w,i,tp&limit=1000';
 
     try {
         const response = await fetch(apiUrl);
