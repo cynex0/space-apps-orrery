@@ -37,11 +37,18 @@ body {
 #body-name {
     pointer-events: all;
     user-select: none;
+    white-space: nowrap;
+    max-width: 20rem;
+    overflow: hidden;
 }
 
 #body-name:focus {
     outline: 0;
     border: 0;
+}
+
+.body-label:hover {
+    text-decoration: underline;
 }
 
 @keyframes translate {
@@ -67,18 +74,34 @@ body {
     margin-bottom: 1rem;
 }
 
-.focus>h1,
-.focus>h3 {
+.search {
+    user-select: none;
+    -webkit-user-drag: none;
+    justify-content: center;
+    align-items: center;
+    gap: 0.7rem;
+    display: flex;
+    flex-direction: row;
+}
+
+.search img {
+    width: 2.8rem;
+    height: 2.8rem;
+    filter: drop-shadow(0px 0px 10px black);
+}
+
+.focus h1,
+.focus h3 {
     margin: 0;
 }
 
-.focus>h1 {
+.focus h1 {
     font-size: 3rem;
     font-weight: 500;
     text-shadow: black 1px 0 10px;
 }
 
-.focus>h3 {
+.focus h3 {
     font-size: 1rem;
     font-weight: 200;
     text-shadow: black 1px 0 10px;
@@ -124,7 +147,11 @@ body {
     gap: 0.2rem;
     display: flex;
     flex-direction: row;
-    justify-content: center;
+}
+
+.options>p {
+    margin: 0;
+    margin-top: 1rem;
 }
 
 .body-label {

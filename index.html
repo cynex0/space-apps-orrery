@@ -25,10 +25,16 @@
         <input type="checkbox" id="display_labels" name="display_labels" checked />
         <label for="display_labels">Display labels</label>
       </div>
+      <p>NEOs are marked by a blue glow.
+      <p>PHAs are marked by red glows.</br>The more powerfull the glow,</br>the closer to Earth.</p>
     </div>
 
     <div class="focus">
-      <h1 id="body-name" contenteditable="true"></h1>
+      <div class="search">
+        <img src="./static/search.svg" style="pointer-events: all; cursor: pointer;" onclick="const editor = document.getElementById('body-name'); 
+          editor.innerHTML=''; editor.focus()">
+        <h1 id="body-name" contenteditable="true"></h1>
+      </div>
       <h3 id="distance-to-earth"></h3>
     </div>
   </div>
@@ -49,7 +55,6 @@
           }
         }
       </script>
-      
   <script type="module" src="./ui.js"></script>
   <script type="module" src="./index.js"></script>
 </body>
