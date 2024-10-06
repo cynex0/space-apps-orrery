@@ -62,6 +62,12 @@ window.addEventListener('resize', () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
     composer.setSize(sizes.width, sizes.height);
+
+    window.cameraChangeListeners.forEach(listener => {
+        if (listener) {
+            listener()
+        }
+    });
 })
 //#endregion
 
@@ -140,7 +146,7 @@ bodyData.forEach(planet => {
                 }
             }
             const mesh = window.meshStore.createSphere(layer.scale, layer.resolution,
-                layer.resolution, layer.mat, layer.position, layer.name)
+                layer.resolution, layer.mat, layer.position, layer.name, layer.name == "Moon")
             if (layer.name == "Earth") { // default earth mesh for zoom
                 window.targetedMesh.set(mesh);
             }
@@ -226,19 +232,21 @@ const tick = () => {
     cameraAnimator.update(delta)
     controllerAnimator.update(delta)
 
-    if (Math.abs(camera.position.x - cameraClone.position.x) > 0.0000001 ||
-        Math.abs(camera.position.y - cameraClone.position.y) > 0.0000001 ||
-        Math.abs(camera.position.z - cameraClone.position.z) > 0.0000001 ||
+    renderer.render(scene, camera)
+    composer.render()
+
+    const deltaX = camera.position.x - cameraClone.position.x;
+    const deltaY = camera.position.y - cameraClone.position.y;
+    const deltaZ = camera.position.z - cameraClone.position.z;
+
+    if (deltaX || deltaY || deltaZ ||
         camera.fov != cameraClone.fov) {
         window.cameraChangeListeners.forEach(listener => {
             if (listener) {
-                listener()
+                listener(Math.max(Math.max(deltaX, deltaY), deltaZ))
             }
         });
     }
-
-    renderer.render(scene, camera)
-    composer.render()
 
     if (delta < FRAME_TIME) {
         setTimeout(

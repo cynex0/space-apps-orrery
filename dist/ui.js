@@ -45,7 +45,9 @@ window.targetedMesh.addListener(() => {
 })
 
 search.addEventListener("keypress", function (event) {
-    if (event.key === "Enter" && window.meshStore) {
+    if(search.innerHTML?.length > 40) {
+        event.preventDefault();
+    } else if (event.key === "Enter" && window.meshStore) {
         event.preventDefault();
 
         const results = window.meshStore.search(search.innerHTML);
@@ -66,7 +68,9 @@ search.addEventListener("blur", function () {
     }
 })
 
-window.cameraChangeListeners = [() => {
-    search.contentEditable = false;
-    search.contentEditable = true;
+window.cameraChangeListeners = [(delta) => {
+    if (delta > 0.00001) {
+        search.contentEditable = false;
+        search.contentEditable = true;
+    }
 }]

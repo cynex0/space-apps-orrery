@@ -37,11 +37,18 @@ body {
 #body-name {
     pointer-events: all;
     user-select: none;
+    white-space: nowrap;
+    max-width: 20rem;
+    overflow: hidden;
 }
 
 #body-name:focus {
     outline: 0;
     border: 0;
+}
+
+.body-label:hover {
+    text-decoration: underline;
 }
 
 @keyframes translate {
@@ -80,6 +87,7 @@ body {
 .search img {
     width: 2.8rem;
     height: 2.8rem;
+    filter: drop-shadow(0px 0px 10px black);
 }
 
 .focus h1,
@@ -139,7 +147,11 @@ body {
     gap: 0.2rem;
     display: flex;
     flex-direction: row;
-    justify-content: center;
+}
+
+.options>p {
+    margin: 0;
+    margin-top: 1rem;
 }
 
 .body-label {
