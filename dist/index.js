@@ -133,12 +133,12 @@ window.meshStore = new MeshStore(scene, camera, renderer,
 bodyData.forEach(planet => {
     planet.forEach(function (layer, index) {
         if (layer.mat && layer.position) {
-            if (layer.name) {
-                if (layer.name != "Sun") {
-                    const { positions, opacities } = getPositions(layer.name, new Date());
-                    createOrbit(scene, positions, opacities);
-                }
-            }
+			if(layer.name){
+				if(layer.name != "Sun" && layer.name != "Moon"){
+					const { positions, opacities } = getPositions(layer.name, new Date());
+					createOrbit(scene, positions, opacities, layer.name);
+				}
+			}
             const mesh = window.meshStore.createSphere(layer.scale, layer.resolution,
                 layer.resolution, layer.mat, layer.position, layer.name)
             if (layer.name == "Earth") { // default earth mesh for zoom
