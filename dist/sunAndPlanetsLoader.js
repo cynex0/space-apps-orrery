@@ -124,7 +124,7 @@ export default function loadBodyData(textureLoader) {
             emissiveIntensity: 0.01,
         })], // Jupiter
         [new THREE.MeshPhysicalMaterial({
-            map: textureLoader.load('static/2k_saturn.jpg'),
+            map: textureLoader.load('static/saturn/2k_saturn.jpg'),
             specularColor: new THREE.Color(0x888888),
             roughness: 0.9,
             metalness: 0.1,
