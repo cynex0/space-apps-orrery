@@ -48,7 +48,6 @@ export const calculatePosition = (orbitalElements) => {
 
     // Validate semi-major axis and eccentricity before proceeding
     if (semiMajorAxis <= 0 || eccentricity < 0 || eccentricity >= 1) {
-        console.error('Invalid semi-major axis or eccentricity:', { semiMajorAxis, eccentricity });
         return new THREE.Vector3(0, 0, 0);
     }
 
@@ -94,7 +93,6 @@ const toJulianDay = (date) => {
     const year = date.getUTCFullYear();
     const month = date.getUTCMonth() + 1;
     const day = date.getUTCDate();
-
 
     const a = Math.floor((14 - month) / 12);
     const y = year + 4800 - a;
