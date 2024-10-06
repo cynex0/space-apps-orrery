@@ -26,40 +26,59 @@ class MeshStore {
         this.scene.add(mesh)
 
         const call = this.onClick
+        const domEvents = this.domEvents
 
-        const span = document.createElement("span");
-        const textContent = document.createTextNode(name);
-        span.classList.add("body-label");
+        if (name) {
+            const span = document.createElement("span");
+            const textContent = document.createTextNode(name);
+            span.classList.add("body-label");
 
-        span.appendChild(textContent);
-        this.textContainer.appendChild(span);
+            span.appendChild(textContent);
+            this.textContainer.appendChild(span);
 
-        setInterval(() => {
-            const position = this.positionToScreenCoords(mesh, span);
+            setInterval(() => {
+                const position = this.positionToScreenCoords(mesh, span);
 
-            span.style.transform =
-                `translateX(calc(${position.x}px - 50%)) translateY(calc(${position.y}px - 50%))`;
-        }, 2);
+                span.style.transform =
+                    `translateX(calc(${position.x}px - 50%)) translateY(calc(${position.y}px - 50%))`;
+            }, 2);
 
-        span.addEventListener('click', function () {
-            call(mesh.position)
-        })
+            span.addEventListener('click', function () {
+                call(mesh)
+            })
 
-        let potentialClick = true;
+            let mouseMoveAttached = false;
 
-        this.domEvents.addEventListener(mesh, 'mousedown', function (event) {
-            potentialClick = true;
-        }, false)
+            const mouseMoveListener = function () {
+                potentialClick = false;
 
-        this.domEvents.addEventListener(mesh, 'mousemove', function (event) {
-            potentialClick = false;
-        }, false)
+                if (mouseMoveAttached) {
+                    domEvents.removeEventListener(mesh, 'mousemove', mouseMoveListener)
+                }
+                mouseMoveAttached = false;
+            };
 
-        this.domEvents.addEventListener(mesh, 'click', function () {
-            if (potentialClick) {
-                call(mesh.position)
-            }
-        }, false)
+            let potentialClick = true;
+
+            domEvents.addEventListener(mesh, 'mousedown', function () {
+                potentialClick = true;
+
+
+                domEvents.addEventListener(mesh, 'mousemove', mouseMoveListener, false);
+                mouseMoveAttached = true;
+            }, false)
+
+            domEvents.addEventListener(mesh, 'click', function () {
+                if (potentialClick) {
+                    call(mesh)
+                }
+
+                if (mouseMoveAttached) {
+                    domEvents.removeEventListener(mesh, 'mousemove', mouseMoveListener)
+                }
+                mouseMoveAttached = false;
+            }, false)
+        }
     }
 
     createSphere(radius, wDiv, hDiv, mat, pos, name) {
@@ -87,15 +106,15 @@ class MeshStore {
         let height = document.body.clientHeight;
 
         const precomputedX = (position.x * width / 2);
-        position.x = Math.max(element.clientWidth / 2 + 20,
+        position.x = Math.max(element.clientWidth / 2 + 5,
             Math.min((precomputedX + width / 2) * positionMultiplyer,
-                width - element.clientWidth / 2 - 20)
+                width - element.clientWidth / 2 - 5)
         );
 
         const precomputedY = (position.y * height / 2);
-        position.y = Math.max(element.clientHeight / 2 + 20,
+        position.y = Math.max(element.clientHeight / 2 + 5,
             Math.min((- precomputedY + height / 2) * positionMultiplyer,
-                height - element.clientHeight / 2 - 20)
+                height - element.clientHeight / 2 - 5)
         );
 
         const opacity = (Math.abs(precomputedX) / (width / 2)) +

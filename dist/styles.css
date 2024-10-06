@@ -16,14 +16,20 @@ body {
     height: 100%;
 }
 
-.menu {
+#loading {
     z-index: 100;
-    background: linear-gradient(transparent 70%, rgba(0, 0, 0, 0.7));
+    background: black;
+    transition: 1s;
+    pointer-events: all;
+}
+
+.menu {
+    z-index: 10;
 }
 
 #nasa {
     pointer-events: none;
-    opacity: 0.7;
+    opacity: 0.5;
     width: 12rem;
     height: 5rem;
     bottom: 2rem;
@@ -34,9 +40,16 @@ body {
 
 .options {
     position: absolute;
-    bottom: 2rem;
-    left: 2rem;
+    padding: 2rem;
+    transition: 0.3s;
+    bottom: 0;
+    left: 0;
+    opacity: 0.5;
     color: white;
+}
+
+.options:hover {
+    opacity: 1;
 }
 
 .options * {
