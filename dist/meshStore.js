@@ -26,6 +26,7 @@ class MeshStore {
         this.scene.add(mesh)
 
         const call = this.onClick
+        const domEvents = this.domEvents
 
         if (name) {
             const span = document.createElement("span");
@@ -47,20 +48,36 @@ class MeshStore {
             })
         }
 
+        let mouseMoveAttached = false;
+
+        const mouseMoveListener = function () {
+            potentialClick = false;
+
+            if (mouseMoveAttached) {
+                domEvents.removeEventListener(mesh, 'mousemove', mouseMoveListener)
+            }
+            mouseMoveAttached = false;
+        };
+
         let potentialClick = true;
 
-        this.domEvents.addEventListener(mesh, 'mousedown', function (event) {
+        domEvents.addEventListener(mesh, 'mousedown', function () {
             potentialClick = true;
+
+
+            domEvents.addEventListener(mesh, 'mousemove', mouseMoveListener, false);
+            mouseMoveAttached = true;
         }, false)
 
-        this.domEvents.addEventListener(mesh, 'mousemove', function (event) {
-            potentialClick = false;
-        }, false)
-
-        this.domEvents.addEventListener(mesh, 'click', function () {
+        domEvents.addEventListener(mesh, 'click', function () {
             if (potentialClick) {
                 call(mesh.position)
             }
+
+            if (mouseMoveAttached) {
+                domEvents.removeEventListener(mesh, 'mousemove', mouseMoveListener)
+            }
+            mouseMoveAttached = false;
         }, false)
     }
 

@@ -148,6 +148,7 @@ const cameraAnimator = new CameraAnimator(controls)
 
 //#region Main loop
 
+const FRAME_TIME = 1000 / 120;
 const clock = new THREE.Clock()
 
 let elapsedTime = 0;
@@ -164,7 +165,11 @@ const tick = () => {
     renderer.render(scene, camera)
     composer.render()
 
-    window.requestAnimationFrame(tick)
+    if (delta < FRAME_TIME) {
+        setTimeout(
+            () => window.requestAnimationFrame(tick),
+            FRAME_TIME - delta)
+    }
 };
 //#endregion
 
