@@ -34,6 +34,16 @@ body {
     color: white;
 }
 
+#body-name {
+    pointer-events: all;
+    user-select: none;
+}
+
+#body-name:focus {
+    outline: 0;
+    border: 0;
+}
+
 @keyframes translate {
     0% {
         transform: translateX(0) translateY(-50%);

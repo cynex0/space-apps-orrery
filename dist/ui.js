@@ -16,13 +16,15 @@ document.getElementById("display_labels")
         }
     });
 
+const search = document.getElementById("body-name");
 const earthMesh = loadBodyData()[3][0];
 
-window.targetedMesh = new ObjectListener(() => {
+window.targetedMesh = new ObjectListener()
+window.targetedMesh.addListener(() => {
     if (window.targetedMesh?.get()) {
         const mesh = window.targetedMesh.get()
 
-        document.getElementById("body-name").innerHTML = mesh.name;
+        search.innerHTML = mesh.name;
 
         const distance = document.getElementById("distance-to-earth");
         if (mesh.name == "Earth") {
@@ -35,9 +37,20 @@ window.targetedMesh = new ObjectListener(() => {
                         Math.pow(earthMesh.position.x - mesh.position.x, 2) +
                         Math.pow(earthMesh.position.y - mesh.position.y, 2) +
                         Math.pow(earthMesh.position.z - mesh.position.z, 2)
-                    ) / 20 * 100
-                ) / 100
+                    ) * 1000
+                ) / 1000
                 } AU away from Earth`;
         }
     }
 })
+
+search.addEventListener("keypress", function (event) {
+    if (event.key === "Enter" && window.meshStore) {
+        event.preventDefault();
+
+        const results = window.meshStore.search(search.innerHTML);
+        if (results?.length) {
+            window.targetedMesh.set(results[0].item)
+        }
+    }
+}); 

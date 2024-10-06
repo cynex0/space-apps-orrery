@@ -1,21 +1,29 @@
 class ObjectListener {
     object;
-    listener;
+    listeners;
 
-    constructor(listener) {
-        this.listener = listener;
+    constructor() {
+        this.listeners = [];
     }
 
     set(object) {
         this.object = object;
 
-        if (this.listener) {
-            this.listener();
+        if (object) {
+            this.listeners.forEach(listener => {
+                listener(object);
+            });
         }
     }
 
     get() {
         return this.object;
+    }
+
+    addListener(listener) {
+        if (listener) {
+            this.listeners.push(listener)
+        }
     }
 }
 

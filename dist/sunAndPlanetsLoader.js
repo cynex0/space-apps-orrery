@@ -13,7 +13,7 @@ const bodyScales = [
     0.036422, // Uranus
     0.035359, // Neptune
     0.002495, // Moon
-]
+].map(function (element) { return element * 0.00465047; });
 
 const bodyNames = [
     'Sun',
@@ -30,12 +30,12 @@ const bodyNames = [
 
 const bodyPositions = window.lagrange.planet_positions
     .getPositions(new Date())
-    .filter(obj => {return bodyNames.map(s => s.toLowerCase()).includes(obj.name)})
+    .filter(obj => { return bodyNames.map(s => s.toLowerCase()).includes(obj.name) })
     .map(element => {
         const obj = {
-            x: element.position.x / AU_TO_METERS * 20,
-            y: element.position.y / AU_TO_METERS * 20,
-            z: element.position.z / AU_TO_METERS * 20,
+            x: element.position.x / AU_TO_METERS,
+            y: element.position.y / AU_TO_METERS,
+            z: element.position.z / AU_TO_METERS,
         }
 
         return obj
@@ -181,7 +181,7 @@ export default function loadBodyData() {
     ]
 
     for (let body = 0; body <= bodyMats.length; body++) {
-        for (let layer = 0; layer < bodyMats[body]?.length; layer++){
+        for (let layer = 0; layer < bodyMats[body]?.length; layer++) {
             layer == 0 ?
                 bodies.push([{
                     resolution: 256,
@@ -193,11 +193,11 @@ export default function loadBodyData() {
                 bodies[body].push({
                     resolution: 256,
                     position: bodies[body][layer - 1].position,
-                    scale: bodies[body][layer - 1].scale + (300000 / AU_TO_METERS),
+                    scale: bodies[body][layer - 1].scale + 0.00000001,
                     mat: bodyMats[body][layer]
                 })
         }
     }
-    
+
     return bodies;
 }
