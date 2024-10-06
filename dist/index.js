@@ -10,6 +10,8 @@ import ControllerAnimator from './controllerAnimation.js';
 import loadSmallBodies from './smallBodiesLoader.js';
 import loadBodyData from './sunAndPlanetsLoader.js';
 
+import { createOrbit, getPositions } from './orbits.js';
+
 const canvas = document.querySelector('canvas.webgl')
 
 //#region Sizes
@@ -129,8 +131,14 @@ window.meshStore = new MeshStore(scene, camera, renderer,
 );
 
 bodyData.forEach(planet => {
-    planet.forEach(layer => {
+    planet.forEach(function(layer) {
         if (layer.mat && layer.position) {
+			if(layer.name){
+				if(layer.name != "Sun"){
+					const { positions, opacities } = getPositions(layer.name, new Date());
+					createOrbit(scene, positions, opacities);
+				}
+			}
             const mesh = window.meshStore.createSphere(layer.scale, layer.resolution,
                 layer.resolution, layer.mat, layer.position, layer.name)
             if (layer.name == "Earth") { // default earth mesh for zoom
