@@ -106,7 +106,7 @@ sunAndPlanetData.forEach(planet => {
 //#endregion
 
 //#region Sun light
-const light = new THREE.PointLight(0xffffff, 1000);
+const light = new THREE.PointLight(0xffffff, 5000);
 light.position.set(0, 0, 0)
 // light.castShadow = true
 
@@ -128,17 +128,20 @@ controls.zoomSpeed = 5;
 controls.enableZoom = true;
 controls.enableDamping = true;
 
+const startPlanet = 5
+
 controls.target.set(
-    sunAndPlanetData[3][0].position.x,
-    sunAndPlanetData[3][0].position.y,
+    sunAndPlanetData[startPlanet][0].position.x,
+    sunAndPlanetData[startPlanet][0].position.y,
+    sunAndPlanetData[startPlanet][0].position.z
 )
 const cameraAnimator = new CameraAnimator(controls)
 //#endregion
 
 //#region Main loop
-camera.position.x = sunAndPlanetData[3][0].position.x
-camera.position.y = sunAndPlanetData[3][0].position.y
-camera.position.z = sunAndPlanetData[3][0].position.z
+camera.position.x = sunAndPlanetData[startPlanet][0].position.x
+camera.position.y = sunAndPlanetData[startPlanet][0].position.y
+camera.position.z = sunAndPlanetData[startPlanet][0].position.z
 
 const clock = new THREE.Clock()
 
