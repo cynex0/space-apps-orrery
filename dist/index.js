@@ -7,10 +7,10 @@ import { TrackballControls } from 'three/addons/controls/TrackballControls.js'
 import MeshStore from './meshStore.js';
 import CameraAnimator from './cameraAnimation.js';
 import ControllerAnimator from './controllerAnimation.js';
+import loadSmallBodies from './smallBodiesLoader.js';
 import loadBodyData from './sunAndPlanetsLoader.js';
 
 const canvas = document.querySelector('canvas.webgl')
-let targetedMesh = null;
 
 //#region Sizes
 const sizes = {
@@ -24,7 +24,6 @@ const scene = new THREE.Scene()
 //#endregion
 
 //#region Texture loader
-const textureLoader = new THREE.TextureLoader()
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 
 const texture = cubeTextureLoader.load([
@@ -65,7 +64,7 @@ window.addEventListener('resize', () => {
 //#endregion
 
 //#region Camera
-const camera = new THREE.PerspectiveCamera(50, sizes.width / sizes.height, 0.0001, 100000000000)
+const camera = new THREE.PerspectiveCamera(50, sizes.width / sizes.height, 0.0000001, 100000000000)
 scene.add(camera)
 //#endregion
 
@@ -111,7 +110,7 @@ controls.addEventListener('change', () => {
         Math.pow(camera.position.y, 2) +
         Math.pow(camera.position.z, 2))
 
-    light.intensity = Math.pow(dist, 2)
+    light.intensity = Math.pow(dist, 2.1)
 })
 
 const cameraAnimator = new CameraAnimator(controls)
@@ -119,37 +118,34 @@ const controllerAnimator = new ControllerAnimator(camera, controls)
 //#endregion
 
 //#region Meshes
-const sunAndPlanetData = loadBodyData(textureLoader);
+const bodyData = loadBodyData();
 
-const meshStore = new MeshStore(scene, camera, renderer,
+window.meshStore = new MeshStore(scene, camera, renderer,
     function (mesh) {
-        if (mesh != targetedMesh) {
-            cameraAnimator.animate(mesh.position)
-            controllerAnimator.animate(mesh)
-
-            targetedMesh = mesh;
+        if (mesh != window.targetedMesh.get()) {
+            window.targetedMesh.set(mesh);
         }
     }, document.getElementById("body-text-identifiers")
 );
 
-sunAndPlanetData.forEach(planet => {
+bodyData.forEach(planet => {
     planet.forEach(layer => {
         if (layer.mat && layer.position) {
-            const mesh = meshStore.createSphere(layer.scale, layer.resolution,
+            const mesh = window.meshStore.createSphere(layer.scale, layer.resolution,
                 layer.resolution, layer.mat, layer.position, layer.name)
-
             if (layer.name == "Earth") { // default earth mesh for zoom
-                targetedMesh = mesh;
+                window.targetedMesh.set(mesh);
             }
         }
     })
 })
 
+const textureLoader = new THREE.TextureLoader()
 const ringColorMap = textureLoader.load('static/saturn/saturnringcolor.jpg');
 const ringTransparencyMap = textureLoader.load('static/saturn/saturnringpattern.gif');
 
 // Create a large flat plane for the rings
-const ringGeometry = new THREE.RingGeometry(0.15, 0.3, 64); // Plane size based on ring size
+const ringGeometry = new THREE.RingGeometry(0.175, 0.3, 64); // Plane size based on ring size
 
 // Rotate the plane to be horizontal
 ringGeometry.rotateX(Math.PI / 2);
@@ -180,8 +176,8 @@ const ringMaterial = new THREE.MeshStandardMaterial({
 const rings = new THREE.Mesh(ringGeometry, ringMaterial);
 
 // Position and scale the rings
-rings.scale.set(1.5, 1.5, 1.5); // Adjust the size as needed
-rings.position.set(sunAndPlanetData[6][0].position.x, sunAndPlanetData[6][0].position.y, sunAndPlanetData[6][0].position.z); // Centered around Saturn
+rings.scale.set(0.006, 0.006, 0.006); // Adjust the size as needed
+rings.position.set(bodyData[6][0].position.x, bodyData[6][0].position.y, bodyData[6][0].position.z); // Centered around Saturn
 
 // Add the rings to the Saturn object (assuming you have a Saturn mesh)
 scene.add(rings);
@@ -197,6 +193,8 @@ const rotationSpeeds = [
     {name: 'Uranus', speed: 62040},
     {name: 'Neptune', speed: 57600},
 ]
+
+loadSmallBodies(window.meshStore);
 //#endregion
 
 //#region Main loop
@@ -234,10 +232,13 @@ const tick = () => {
 tick()
 
 window.addEventListener("load", () => {
+    document.getElementById("welcome").style.animation =
+        "translate 2s forwards cubic-bezier(0.6, 0.8, .6, 1)";
+
     setTimeout(() => {
-        if (targetedMesh) {
-            cameraAnimator.animate(targetedMesh.position)
-            controllerAnimator.animate(targetedMesh)
+        if (window.targetedMesh.get()) {
+            cameraAnimator.animate(window.targetedMesh.get().position)
+            controllerAnimator.animate(window.targetedMesh.get())
 
             setTimeout(() => {
                 const loading = document.getElementById("loading");
@@ -245,5 +246,10 @@ window.addEventListener("load", () => {
                 loading.style.pointerEvents = "none";
             }, 1000)
         }
-    }, 200) // delay to pass jitter frame
+
+        window.targetedMesh.addListener((mesh) => {
+            cameraAnimator.animate(mesh.position)
+            controllerAnimator.animate(mesh)
+        })
+    }, 500) // delay to pass jitter frame
 });
