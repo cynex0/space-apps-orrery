@@ -7,7 +7,7 @@ import { TrackballControls } from 'three/addons/controls/TrackballControls.js'
 import MeshStore from './meshStore.js';
 import CameraAnimator from './cameraAnimation.js';
 import ControllerAnimator from './controllerAnimation.js';
-import loadSunAndPlanetData from './sunAndPlanetsLoader.js';
+import loadBodyData from './sunAndPlanetsLoader.js';
 
 const canvas = document.querySelector('canvas.webgl')
 let targetedMesh = null;
@@ -119,7 +119,7 @@ const controllerAnimator = new ControllerAnimator(camera, controls)
 //#endregion
 
 //#region Meshes
-const sunAndPlanetData = loadSunAndPlanetData(textureLoader);
+const sunAndPlanetData = loadBodyData(textureLoader);
 
 const meshStore = new MeshStore(scene, camera, renderer,
     function (mesh) {
