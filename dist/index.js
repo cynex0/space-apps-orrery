@@ -134,9 +134,9 @@ bodyData.forEach(planet => {
     planet.forEach(function(layer) {
         if (layer.mat && layer.position) {
 			if(layer.name){
-				if(layer.name != "Sun"){
+				if(layer.name != "Sun" && layer.name != "Moon"){
 					const { positions, opacities } = getPositions(layer.name, new Date());
-					createOrbit(scene, positions, opacities);
+					createOrbit(scene, positions, opacities, layer.name);
 				}
 			}
             const mesh = window.meshStore.createSphere(layer.scale, layer.resolution,

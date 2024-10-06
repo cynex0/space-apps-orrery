@@ -11,14 +11,47 @@ const vertexShader = `
 	}
 `;
 
-const fragmentShader = `
-	varying float vOpacity;
-	void main() {
-		gl_FragColor = vec4(1.0, 1.0, 1.0, vOpacity);
-	}
-`;
+const planetSpeeds = {
+	earth: 1,
+	mars: 1.88,
+	mercury: 0.24,
+	venus: 0.62,
+	jupiter: 11.86,
+	saturn: 29.46,
+	uranus: 84.01,
+	neptune: 164.8
+}
 
-function createOrbit(scene, points, opacities) {
+const orbitColors = {
+    mercury: '176, 176, 176',
+    venus: '255, 204, 0',
+    earth: '0, 170, 255',
+	mars: '255, 69, 0',
+	jupiter: '255, 127, 80',
+	saturn: '218, 165, 32',
+	uranus: '65, 105, 225',
+	neptune: '133, 173, 219'
+};
+
+const AMOUNT = 70;
+const STEP = 2;
+
+
+for (let color in orbitColors) {
+	orbitColors[color] = orbitColors[color].split(',').map(num => num / 255);
+}
+
+let fragmentShaders = {};
+for (let planet in orbitColors) {
+	fragmentShaders[planet] = `
+		varying float vOpacity;
+		void main() {
+			gl_FragColor = vec4(${orbitColors[planet]}, vOpacity);
+		}
+	`;
+}
+
+function createOrbit(scene, points, opacities, planet) {
 	const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
 
 	const opacityAttribute = new Float32Array(opacities);
@@ -26,7 +59,7 @@ function createOrbit(scene, points, opacities) {
 
 	const lineMaterial = new THREE.ShaderMaterial({
 		vertexShader,
-		fragmentShader,
+		fragmentShader: fragmentShaders[planet.toLowerCase()],
 		transparent: true
 	});
 
@@ -35,46 +68,12 @@ function createOrbit(scene, points, opacities) {
 	scene.add( line );
 }
 
-// const planetAmounts = {
-// 	mercury: 70,
-// 	venus: 100,
-// 	earth: 150,
-// 	mars: 200,
-// 	jupiter: 400,
-// 	saturn: 440,
-// 	uranus: 470,
-// 	neptune: 500,
-// }
-
-const planetAmounts = {
-	mercury: 70,
-	venus: 100,
-	earth: 100,
-	mars: 100,
-	jupiter: 100,
-	saturn: 100,
-	uranus: 100,
-	neptune: 100,
-}
-
-const planetSteps = {
-	mercury: 1,
-	venus: 1,
-	earth: 1,
-	mars: 2,
-	jupiter: 5,
-	saturn: 10,
-	uranus: 20,
-	neptune: 30,
-}
-
 // step in days
 function getPositions(planet, startDate) {
 	let positions = [];
 	let opacities = [];
-	let amount = planetAmounts[planet.toLowerCase()];
-	let step = planetSteps[planet.toLowerCase()];
-	for (let i = 0; i < amount; i++) {
+	let step = STEP * planetSpeeds[planet.toLowerCase()];
+	for (let i = 0; i < AMOUNT; i++) {
         const date = new Date(startDate);
         date.setDate(date.getDate() - (i * step));
 		let newData = window.lagrange.planet_positions.getPositions(date);
@@ -84,7 +83,7 @@ function getPositions(planet, startDate) {
 		newData.y = newData.y / AU_TO_METERS;
 		newData.z = newData.z / AU_TO_METERS;
 		positions.push(newData);
-		opacities.push(2 - (2 * i / (amount - 1)));
+		opacities.push(2 - (2 * i / (AMOUNT - 1)));
 	}
 	return {positions, opacities};
 }
