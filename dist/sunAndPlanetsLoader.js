@@ -193,8 +193,8 @@ export default function loadBodyData() {
                 bodies[body].push({
                     resolution: 256,
                     position: bodies[body][layer - 1].position,
-                    scale: bodies[body][layer - 1].scale + 0.00000001,
-                    mat: bodyMats[body][layer]
+                    scale: bodies[body][layer - 1].scale + 0.0000005,
+                    mat: bodyMats[body][layer],
                 })
         }
     }

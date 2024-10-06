@@ -131,14 +131,14 @@ window.meshStore = new MeshStore(scene, camera, renderer,
 );
 
 bodyData.forEach(planet => {
-    planet.forEach(function(layer) {
+    planet.forEach(function (layer, index) {
         if (layer.mat && layer.position) {
-			if(layer.name){
-				if(layer.name != "Sun"){
-					const { positions, opacities } = getPositions(layer.name, new Date());
-					createOrbit(scene, positions, opacities);
-				}
-			}
+            if (layer.name) {
+                if (layer.name != "Sun") {
+                    const { positions, opacities } = getPositions(layer.name, new Date());
+                    createOrbit(scene, positions, opacities);
+                }
+            }
             const mesh = window.meshStore.createSphere(layer.scale, layer.resolution,
                 layer.resolution, layer.mat, layer.position, layer.name)
             if (layer.name == "Earth") { // default earth mesh for zoom
@@ -192,14 +192,14 @@ scene.add(rings);
 
 // siderial day in seconds
 const rotationSpeeds = [
-    {name: 'Mercury', speed: 5067000},
-    {name: 'Venus', speed: -20996760},
-    {name: 'Earth', speed: 86160},
-    {name: 'Mars', speed: 88560},
-    {name: 'Jupiter', speed: 35700},
-    {name: 'Saturn', speed: 37980},
-    {name: 'Uranus', speed: 62040},
-    {name: 'Neptune', speed: 57600},
+    { name: 'Mercury', speed: 5067000 },
+    { name: 'Venus', speed: -20996760 },
+    { name: 'Earth', speed: 86160 },
+    { name: 'Mars', speed: 88560 },
+    { name: 'Jupiter', speed: 35700 },
+    { name: 'Saturn', speed: 37980 },
+    { name: 'Uranus', speed: 62040 },
+    { name: 'Neptune', speed: 57600 },
 ]
 
 loadSmallBodies(window.meshStore);
