@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 const AU_TO_METERS = 1.496e11;
 
-const sunAndPlanetsScales = [
+const bodyScales = [
     1.000000, // Sun
     0.003504, // Mercury
     0.008691, // Venus
@@ -11,10 +11,11 @@ const sunAndPlanetsScales = [
     0.100398, // Jupiter
     0.083626, // Saturn
     0.036422, // Uranus
-    0.035359 // Neptune
-]
+    0.035359, // Neptune
+    0.002495, // Moon
+].map(function (element) { return element * 0.00465047; });
 
-const sunAndPlanetsNames = [
+const bodyNames = [
     'Sun',
     'Mercury',
     'Venus',
@@ -23,24 +24,33 @@ const sunAndPlanetsNames = [
     'Jupiter',
     'Saturn',
     'Uranus',
-    'Neptune'
+    'Neptune',
+    'Moon'
 ]
 
-const sunAndPlanetsPositions = window.lagrange.planet_positions
+const bodyPositions = window.lagrange.planet_positions
     .getPositions(new Date())
-    .slice(0, 9)
+    .filter(obj => { return bodyNames.map(s => s.toLowerCase()).includes(obj.name) })
     .map(element => {
         const obj = {
-            x: element.position.x / AU_TO_METERS * 20,
-            y: element.position.y / AU_TO_METERS * 20,
-            z: element.position.z / AU_TO_METERS * 20,
+            x: element.position.x / AU_TO_METERS,
+            y: element.position.y / AU_TO_METERS,
+            z: element.position.z / AU_TO_METERS,
         }
 
         return obj
     })
 
-export default function loadSunAndPlanetData(textureLoader) {
-    const sunAndPlanetsMats = [
+const bodies = [];
+
+export default function loadBodyData() {
+    if (bodies.length) {
+        return bodies;
+    }
+
+    const textureLoader = new THREE.TextureLoader();
+
+    const bodyMats = [
         [new THREE.MeshBasicMaterial({ // Sun
             map: textureLoader.load('static/8k_sun.jpg'),
         })],
@@ -159,29 +169,35 @@ export default function loadSunAndPlanetData(textureLoader) {
             side: THREE.DoubleSide,
             emissive: new THREE.Color(0x2d68c4),
             emissiveIntensity: 0.01,
-        })] // Neptune
+        })], // Neptune
+        [new THREE.MeshPhysicalMaterial({
+            map: textureLoader.load('static/moon/4k_moon.jpg'),
+            roughness: 0.95,
+            metalness: 0,
+            emissive: new THREE.Color(0xb0b0b0),
+            emissiveIntensity: 0.007,
+            specularColor: new THREE.Color(0x888888)
+        })], // Moon
     ]
 
-    const sunAndPlanets = [];
-
-    for (let planet = 0; planet <= 9; planet++) {
-        for (let layer = 0; layer < sunAndPlanetsMats[planet]?.length; layer++){
+    for (let body = 0; body <= bodyMats.length; body++) {
+        for (let layer = 0; layer < bodyMats[body]?.length; layer++) {
             layer == 0 ?
-                sunAndPlanets.push([{
+                bodies.push([{
                     resolution: 256,
-                    position: sunAndPlanetsPositions[planet],
-                    scale: sunAndPlanetsScales[planet],
-                    mat: sunAndPlanetsMats[planet][layer],
-                    name: sunAndPlanetsNames[planet],
+                    position: bodyPositions[body],
+                    scale: bodyScales[body],
+                    mat: bodyMats[body][layer],
+                    name: bodyNames[body],
                 }]) :
-                sunAndPlanets[planet].push({
+                bodies[body].push({
                     resolution: 256,
-                    position: sunAndPlanets[planet][layer - 1].position,
-                    scale: sunAndPlanets[planet][layer - 1].scale + (300000 / AU_TO_METERS),
-                    mat: sunAndPlanetsMats[planet][layer]
+                    position: bodies[body][layer - 1].position,
+                    scale: bodies[body][layer - 1].scale + 0.00000001,
+                    mat: bodyMats[body][layer]
                 })
         }
     }
-    
-    return sunAndPlanets;
+
+    return bodies;
 }

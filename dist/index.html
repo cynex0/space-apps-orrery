@@ -16,6 +16,7 @@
 
 <body>
   <div class="fixed" id="loading">
+    <h1 id="welcome">What&nbsp;can&nbsp;you&nbsp;see?</h1>
     <img src="./static/nasa.png" id="nasa">
   </div>
   <div class="fixed menu">
@@ -25,10 +26,14 @@
         <label for="display_labels">Display lables</label>
       </div>
     </div>
+
+    <div class="focus">
+      <h1 id="body-name" contenteditable="true"></h1>
+      <h3 id="distance-to-earth"></h3>
+    </div>
   </div>
 
-  <div class="fixed" id="body-text-identifiers">
-  </div>
+  <div class="fixed" id="body-text-identifiers"></div>
 
   <canvas class="webgl"></canvas>
 
@@ -44,8 +49,9 @@
           }
         }
       </script>
-  <script type="module" src="./index.js"></script>
+      
   <script type="module" src="./ui.js"></script>
+  <script type="module" src="./index.js"></script>
 </body>
 
 </html>

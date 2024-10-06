@@ -1,29 +1,26 @@
 import * as THREE from 'three';
 
-export const getOrbitalElements = async (limit = 100) => {
-    const apiUrl = 'https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=full_name,e,a,q,om,w,i,tp&limit=' + limit;
+export const getElements = async (params) => {
+    const apiUrl = `https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=full_name,e,a,q,om,w,i,tp&${params}`;
     const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(apiUrl);
 
     try {
         const response = await fetch(proxyUrl);
+
         if (!response.ok) {
             throw new Error(`Error fetching data: ${response.statusText}`);
         }
 
         const data = await response.json();
         // The actual data is nested under `contents`
-        const orbitalElements = JSON.parse(data.contents);
-        return orbitalElements.data;
+        return JSON.parse(data.contents).data;
     } catch (error) {
         console.error('Error fetching orbital elements:', error);
         return [];
     }
 };
 
-
-
 export const calculatePosition = (orbitalElements) => {
-    const name = orbitalElements[0]; // Name of the body
     const e = orbitalElements[1];    // eccentricity
     const a = orbitalElements[2];    // semi-major axis
     const tp = orbitalElements[7];   // time of perihelion passage (in Julian days)
@@ -55,12 +52,12 @@ export const calculatePosition = (orbitalElements) => {
         return new THREE.Vector3(0, 0, 0);
     }
 
-   // Calculate orbital period (T) in seconds
-   const T = 2 * Math.PI * Math.sqrt(Math.pow(semiMajorAxis, 3) / MU_SUN); // Period in seconds
+    // Calculate orbital period (T) in seconds
+    const T = 2 * Math.PI * Math.sqrt(Math.pow(semiMajorAxis, 3) / MU_SUN); // Period in seconds
 
-   // Calculate Mean Anomaly (M) in radians
-   const elapsedTime = (toJulianDay(new Date()) - tpJD) * 86400; // Elapsed time in seconds
-   const M = (2 * Math.PI / T) * elapsedTime; // Mean anomaly in radians
+    // Calculate Mean Anomaly (M) in radians
+    const elapsedTime = (toJulianDay(new Date()) - tpJD) * 86400; // Elapsed time in seconds
+    const M = (2 * Math.PI / T) * elapsedTime; // Mean anomaly in radians
 
     // Solve for Eccentric Anomaly (E) using a simple iteration
     let E = M; // Initial guess
@@ -70,9 +67,9 @@ export const calculatePosition = (orbitalElements) => {
 
     // Calculate True Anomaly (ν) from Eccentric Anomaly (E)
     const nu = 2 * Math.atan2(Math.sqrt(1 + eccentricity) * Math.sin(E / 2),
-                               Math.sqrt(1 - eccentricity) * Math.cos(E / 2));
+        Math.sqrt(1 - eccentricity) * Math.cos(E / 2));
 
-    const adjustedNu = nu + wRad; 
+    const adjustedNu = nu + wRad;
 
     // Calculate distance (r) from the central body
     const r = semiMajorAxis * (1 - eccentricity * Math.cos(E)); // Distance from the central body
@@ -84,26 +81,26 @@ export const calculatePosition = (orbitalElements) => {
     // Rotate to 3D space
     const z = y * Math.sin(inclination); // z-position based on inclination
     const xyDistance = Math.sqrt(x * x + y * y);
-    
+
     // Apply rotation for longitude of ascending node
     const rotatedX = xyDistance * Math.cos(omRad) - z * Math.sin(omRad);
     const rotatedZ = xyDistance * Math.sin(omRad) + z * Math.cos(omRad);
-    
+
     return new THREE.Vector3(rotatedX, y * Math.cos(inclination), rotatedZ);
 };
 
 
 const toJulianDay = (date) => {
     const year = date.getUTCFullYear();
-    const month = date.getUTCMonth() + 1; 
+    const month = date.getUTCMonth() + 1;
     const day = date.getUTCDate();
 
- 
+
     const a = Math.floor((14 - month) / 12);
     const y = year + 4800 - a;
     const m = month + 12 * a - 3;
 
     const julianDay = day + Math.floor((153 * m + 2) / 5) + (365 * y) + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
-    
-    return julianDay; 
+
+    return julianDay;
 };

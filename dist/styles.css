@@ -23,8 +23,70 @@ body {
     pointer-events: all;
 }
 
+#welcome {
+    left: 0%;
+    padding-left: 100%;
+    top: 50%;
+    margin: 0;
+    position: absolute;
+    font-weight: 900;
+    font-size: 50vh;
+    color: white;
+}
+
+#body-name {
+    pointer-events: all;
+    user-select: none;
+}
+
+#body-name:focus {
+    outline: 0;
+    border: 0;
+}
+
+@keyframes translate {
+    0% {
+        transform: translateX(0) translateY(-50%);
+    }
+
+    100% {
+        transform: translateX(-100%) translateY(-50%);
+    }
+}
+
+.focus {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    bottom: 0;
+    width: 30rem;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.focus>h1,
+.focus>h3 {
+    margin: 0;
+}
+
+.focus>h1 {
+    font-size: 3rem;
+    font-weight: 500;
+    text-shadow: black 1px 0 10px;
+}
+
+.focus>h3 {
+    font-size: 1rem;
+    font-weight: 200;
+    text-shadow: black 1px 0 10px;
+}
+
 .menu {
     z-index: 10;
+    color: white;
 }
 
 #nasa {
@@ -32,8 +94,9 @@ body {
     opacity: 0.5;
     width: 12rem;
     height: 5rem;
-    bottom: 2rem;
-    right: 2rem;
+    margin: 2rem;
+    bottom: 0;
+    right: 0;
     position: absolute;
     object-fit: contain;
 }
@@ -45,7 +108,6 @@ body {
     bottom: 0;
     left: 0;
     opacity: 0.5;
-    color: white;
 }
 
 .options:hover {
@@ -80,4 +142,16 @@ body {
     font-optical-sizing: auto;
     font-weight: 300;
     font-style: normal;
+}
+
+@media screen and (max-width: 1000px) {
+    .options {
+        top: 0;
+        bottom: unset;
+    }
+
+    #nasa {
+        top: 0;
+        bottom: unset;
+    }
 }

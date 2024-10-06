@@ -7,11 +7,10 @@ import { TrackballControls } from 'three/addons/controls/TrackballControls.js'
 import MeshStore from './meshStore.js';
 import CameraAnimator from './cameraAnimation.js';
 import ControllerAnimator from './controllerAnimation.js';
-import loadSunAndPlanetData from './sunAndPlanetsLoader.js';
 import loadSmallBodies from './smallBodiesLoader.js';
+import loadBodyData from './sunAndPlanetsLoader.js';
 
 const canvas = document.querySelector('canvas.webgl')
-let targetedMesh = null;
 
 //#region Sizes
 const sizes = {
@@ -25,7 +24,6 @@ const scene = new THREE.Scene()
 //#endregion
 
 //#region Texture loader
-const textureLoader = new THREE.TextureLoader()
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 
 const texture = cubeTextureLoader.load([
@@ -66,7 +64,7 @@ window.addEventListener('resize', () => {
 //#endregion
 
 //#region Camera
-const camera = new THREE.PerspectiveCamera(50, sizes.width / sizes.height, 0.0001, 100000000000)
+const camera = new THREE.PerspectiveCamera(50, sizes.width / sizes.height, 0.0000001, 100000000000)
 scene.add(camera)
 //#endregion
 
@@ -112,7 +110,7 @@ controls.addEventListener('change', () => {
         Math.pow(camera.position.y, 2) +
         Math.pow(camera.position.z, 2))
 
-    light.intensity = Math.pow(dist, 2)
+    light.intensity = Math.pow(dist, 2.1)
 })
 
 const cameraAnimator = new CameraAnimator(controls)
@@ -120,32 +118,29 @@ const controllerAnimator = new ControllerAnimator(camera, controls)
 //#endregion
 
 //#region Meshes
-const sunAndPlanetData = loadSunAndPlanetData(textureLoader);
-loadSmallBodies(scene, textureLoader);
+const bodyData = loadBodyData();
 
-const meshStore = new MeshStore(scene, camera, renderer,
+window.meshStore = new MeshStore(scene, camera, renderer,
     function (mesh) {
-        if (mesh != targetedMesh) {
-            cameraAnimator.animate(mesh.position)
-            controllerAnimator.animate(mesh)
-
-            targetedMesh = mesh;
+        if (mesh != window.targetedMesh.get()) {
+            window.targetedMesh.set(mesh);
         }
     }, document.getElementById("body-text-identifiers")
 );
 
-sunAndPlanetData.forEach(planet => {
+bodyData.forEach(planet => {
     planet.forEach(layer => {
         if (layer.mat && layer.position) {
-            const mesh = meshStore.createSphere(layer.scale, layer.resolution,
+            const mesh = window.meshStore.createSphere(layer.scale, layer.resolution,
                 layer.resolution, layer.mat, layer.position, layer.name)
-
             if (layer.name == "Earth") { // default earth mesh for zoom
-                targetedMesh = mesh;
+                window.targetedMesh.set(mesh);
             }
         }
     })
 })
+
+loadSmallBodies(window.meshStore);
 //#endregion
 
 //#region Main loop
@@ -179,10 +174,13 @@ const tick = () => {
 tick()
 
 window.addEventListener("load", () => {
+    document.getElementById("welcome").style.animation =
+        "translate 2s forwards cubic-bezier(0.6, 0.8, .6, 1)";
+
     setTimeout(() => {
-        if (targetedMesh) {
-            cameraAnimator.animate(targetedMesh.position)
-            controllerAnimator.animate(targetedMesh)
+        if (window.targetedMesh.get()) {
+            cameraAnimator.animate(window.targetedMesh.get().position)
+            controllerAnimator.animate(window.targetedMesh.get())
 
             setTimeout(() => {
                 const loading = document.getElementById("loading");
@@ -190,5 +188,10 @@ window.addEventListener("load", () => {
                 loading.style.pointerEvents = "none";
             }, 1000)
         }
-    }, 200) // delay to pass jitter frame
+
+        window.targetedMesh.addListener((mesh) => {
+            cameraAnimator.animate(mesh.position)
+            controllerAnimator.animate(mesh)
+        })
+    }, 500) // delay to pass jitter frame
 });

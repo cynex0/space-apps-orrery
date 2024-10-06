@@ -1,39 +1,29 @@
 import * as THREE from 'three';
-import { getOrbitalElements, calculatePosition } from './nearEarthApiModule.js';
+import { getElements, calculatePosition } from './nearEarthApiModule.js';
 
 const AU_TO_METERS = 1.496e11; // 1 AU in meters
 
-export default async function loadSmallBodies(scene, textureLoader) {
-   
-    const smallBodiesOrbitalData = await getOrbitalElements(1000);
-    console.log(smallBodiesOrbitalData)
-
+export default async function loadSmallBodies(meshStore) {
     const smallBodyMaterial = new THREE.MeshPhysicalMaterial({
-        map: textureLoader.load('static/mercury/2k_mercury.jpg'),
-        bumpMap: textureLoader.load('static/mercury/mercurybump.jpg'),
-        bumpScale: 0.5,
         roughness: 0.95,
-        metalness: 0,
         emissive: new THREE.Color(0xb0b0b0),
-        emissiveIntensity: 1,
-        specularColor: new THREE.Color(0x888888),
+        emissiveIntensity: 1
     });
 
-    // Iterate over orbital elements and create small body meshes
-    smallBodiesOrbitalData.forEach((orbitalElements) => {
-        const position = calculatePosition(orbitalElements)
-        .multiplyScalar(1 / AU_TO_METERS) 
-        .multiplyScalar(5); 
+    [
+        "sb-kind=a&sb-ns=n&limit=500", // numbered asteroids
+        "sb-kind=a&sb-ns=u&limit=500", // un-numbered asteroids
+        "sb-kind=c&sb-ns=n&limit=500", // numbered commets
+        "sb-kind=c&sb-ns=u&limit=500", // un-numbered commets
+    ].forEach(async (query) => {
+        const result = await getElements(query);
 
-        const geometry = new THREE.SphereGeometry(0.001752, 32, 32); // Half size of Mercury
-        const smallBodyMesh = new THREE.Mesh(geometry, smallBodyMaterial);
+        result.forEach((element) => {
+            const position = calculatePosition(element)
+                .multiplyScalar(1 / AU_TO_METERS);
 
-        // Set position in 3D space
-        smallBodyMesh.position.set(position.x, position.y, position.z);
-
-        console.log(smallBodyMesh.position);
-
-        // Add small body mesh to the scene
-        scene.add(smallBodyMesh);
-    });
+            meshStore.createSphere(10000 / AU_TO_METERS, 32, 32,
+                smallBodyMaterial, position, element[0], true)
+        })
+    })
 }

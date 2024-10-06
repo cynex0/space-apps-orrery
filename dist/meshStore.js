@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import DomEvents from './threex.domevents.js';
+import Fuse from 'https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.mjs'
 
 class MeshStore {
     scene;
@@ -8,7 +9,9 @@ class MeshStore {
     renderer;
     onClick;
     domEvents;
+    fuzzySearch;
     textContainer;
+    scheduleFuzzySearchRefresh;
 
     constructor(scene, camera, renderer, onClick, textContainer) {
         this.scene = scene;
@@ -16,12 +19,13 @@ class MeshStore {
         this.renderer = renderer;
         this.onClick = onClick;
         this.textContainer = textContainer;
+        this.scheduleFuzzySearchRefresh = true;
 
         this.domEvents = new DomEvents(camera, renderer.domElement)
         this.meshes = [];
     }
 
-    addMesh(mesh, name) {
+    addMesh(mesh, name, hideName) {
         this.meshes.push(mesh)
         this.scene.add(mesh)
 
@@ -29,23 +33,25 @@ class MeshStore {
         const domEvents = this.domEvents
 
         if (name) {
-            const span = document.createElement("span");
-            const textContent = document.createTextNode(name);
-            span.classList.add("body-label");
+            if (!hideName) {
+                const span = document.createElement("span");
+                const textContent = document.createTextNode(name);
+                span.classList.add("body-label");
 
-            span.appendChild(textContent);
-            this.textContainer.appendChild(span);
+                span.appendChild(textContent);
+                this.textContainer.appendChild(span);
 
-            setInterval(() => {
-                const position = this.positionToScreenCoords(mesh, span);
+                setInterval(() => {
+                    const position = this.positionToScreenCoords(mesh, span);
 
-                span.style.transform =
-                    `translateX(calc(${position.x}px - 50%)) translateY(calc(${position.y}px - 50%))`;
-            }, 2);
+                    span.style.transform =
+                        `translateX(calc(${position.x}px - 50%)) translateY(calc(${position.y}px - 50%))`;
+                }, 2);
 
-            span.addEventListener('click', function () {
-                call(mesh)
-            })
+                span.addEventListener('click', function () {
+                    call(mesh)
+                })
+            }
 
             let mouseMoveAttached = false;
 
@@ -78,16 +84,31 @@ class MeshStore {
                 }
                 mouseMoveAttached = false;
             }, false)
+
+            this.scheduleFuzzySearchRefresh = true;
         }
     }
 
-    createSphere(radius, wDiv, hDiv, mat, pos, name) {
+    search(query) {
+        if (!this.fuzzySearch || this.scheduleFuzzySearchRefresh) {
+            this.fuzzySearch = new Fuse(this.meshes, {
+                keys: ['name']
+            });
+
+            this.scheduleFuzzySearchRefresh = false;
+        }
+
+        return this.fuzzySearch.search(query)
+    }
+
+    createSphere(radius, wDiv, hDiv, mat, pos, name, hideName) {
         const geo = new THREE.SphereGeometry(radius, wDiv, hDiv)
         const mesh = new THREE.Mesh(geo, mat)
         mesh.position.set(pos.x, pos.y, pos.z)
+        mesh.name = name
         // mesh.castShadow = true
 
-        this.addMesh(mesh, name)
+        this.addMesh(mesh, name, hideName)
 
         return mesh
     }
@@ -106,22 +127,16 @@ class MeshStore {
         let height = document.body.clientHeight;
 
         const precomputedX = (position.x * width / 2);
-        position.x = Math.max(element.clientWidth / 2 + 5,
-            Math.min((precomputedX + width / 2) * positionMultiplyer,
-                width - element.clientWidth / 2 - 5)
-        );
+        position.x = (precomputedX + width / 2) * positionMultiplyer;
 
         const precomputedY = (position.y * height / 2);
-        position.y = Math.max(element.clientHeight / 2 + 5,
-            Math.min((- precomputedY + height / 2) * positionMultiplyer,
-                height - element.clientHeight / 2 - 5)
-        );
+        position.y = (- precomputedY + height / 2) * positionMultiplyer;
 
         const opacity = (Math.abs(precomputedX) / (width / 2)) +
             (Math.abs(precomputedY) / (height / 2));
         element.style.opacity = opacity;
 
-        if (opacity > 0.4) {
+        if (opacity > 0.2) {
             element.style.pointerEvents = "all"
         } else {
             element.style.pointerEvents = "none"
