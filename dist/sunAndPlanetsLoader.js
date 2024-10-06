@@ -116,14 +116,50 @@ export default function loadSunAndPlanetData(textureLoader) {
             reflectivity: 0.1,
             thickness: 200,
             transparent: true,
-            opacity: 0.99,
+            opacity: 0.98,
             side: THREE.DoubleSide,
             emissive: new THREE.Color(0xffcc00),
             emissiveIntensity: 0.01,
         })], // Jupiter
-        [null], // Saturn
-        [null], // Uranus
-        [null] // Neptune
+        [new THREE.MeshPhysicalMaterial({
+            map: textureLoader.load('static/2k_saturn.jpg'),
+            specularColor: new THREE.Color(0x888888),
+            roughness: 0.9,
+            metalness: 0.1,
+            reflectivity: 0.5,
+            thickness: 200,
+            transparent: true,
+            opacity: 0.99,
+            side: THREE.DoubleSide,
+            emissive: new THREE.Color(0xd4af37),
+            emissiveIntensity: 0.01,
+        })], // Saturn
+        [new THREE.MeshPhysicalMaterial({
+            map: textureLoader.load('static/2k_uranus.jpg'),
+            specularColor: new THREE.Color(0x888888),
+            roughness: 0.9,
+            metalness: 0.1,
+            reflectivity: 0.5,
+            thickness: 200,
+            transparent: true,
+            opacity: 0.99,
+            side: THREE.DoubleSide,
+            emissive: new THREE.Color(0x85e5e5),
+            emissiveIntensity: 0.01,
+        })], // Uranus
+        [new THREE.MeshPhysicalMaterial({
+            map: textureLoader.load('static/2k_neptune.jpg'),
+            specularColor: new THREE.Color(0x888888),
+            roughness: 0.9,
+            metalness: 0.1,
+            reflectivity: 0.5,
+            thickness: 200,
+            transparent: true,
+            opacity: 0.99,
+            side: THREE.DoubleSide,
+            emissive: new THREE.Color(0x2d68c4),
+            emissiveIntensity: 0.01,
+        })] // Neptune
     ]
 
     const sunAndPlanets = [];

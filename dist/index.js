@@ -36,7 +36,7 @@ const skybox = new THREE.Mesh(
         side: THREE.BackSide,
         emissive: new THREE.Color(0xffffff),
         emissiveMap: textureLoader.load('static/8k_stars_alpha.jpg'),
-        emissiveIntensity: 0.05,
+        emissiveIntensity: 0.01,
       })
 );
 scene.add(skybox);
@@ -106,7 +106,7 @@ sunAndPlanetData.forEach(planet => {
 //#endregion
 
 //#region Sun light
-const light = new THREE.PointLight(0xffffff, 5000);
+const light = new THREE.PointLight(0xffffff, 10000);
 light.position.set(0, 0, 0)
 // light.castShadow = true
 
@@ -130,7 +130,7 @@ controls.dinamicDampingFactor = 1;
 controls.enableZoom = true;
 controls.enableDamping = true;
 
-const startPlanet = 3
+const startPlanet = 6
 
 controls.target.set(
     sunAndPlanetData[startPlanet][0].position.x,
