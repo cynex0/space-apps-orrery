@@ -182,6 +182,6 @@ export default function loadSunAndPlanetData(textureLoader) {
                 })
         }
     }
-    console.log(sunAndPlanets)
+    
     return sunAndPlanets;
 }
