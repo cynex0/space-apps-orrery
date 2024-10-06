@@ -85,6 +85,7 @@ class MeshStore {
         const geo = new THREE.SphereGeometry(radius, wDiv, hDiv)
         const mesh = new THREE.Mesh(geo, mat)
         mesh.position.set(pos.x, pos.y, pos.z)
+        mesh.name = name
         // mesh.castShadow = true
 
         this.addMesh(mesh, name)
@@ -106,16 +107,10 @@ class MeshStore {
         let height = document.body.clientHeight;
 
         const precomputedX = (position.x * width / 2);
-        position.x = Math.max(element.clientWidth / 2 + 5,
-            Math.min((precomputedX + width / 2) * positionMultiplyer,
-                width - element.clientWidth / 2 - 5)
-        );
+        position.x = (precomputedX + width / 2) * positionMultiplyer;
 
         const precomputedY = (position.y * height / 2);
-        position.y = Math.max(element.clientHeight / 2 + 5,
-            Math.min((- precomputedY + height / 2) * positionMultiplyer,
-                height - element.clientHeight / 2 - 5)
-        );
+        position.y = (- precomputedY + height / 2) * positionMultiplyer;
 
         const opacity = (Math.abs(precomputedX) / (width / 2)) +
             (Math.abs(precomputedY) / (height / 2));

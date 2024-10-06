@@ -10,7 +10,6 @@ import ControllerAnimator from './controllerAnimation.js';
 import loadBodyData from './sunAndPlanetsLoader.js';
 
 const canvas = document.querySelector('canvas.webgl')
-let targetedMesh = null;
 
 //#region Sizes
 const sizes = {
@@ -24,7 +23,6 @@ const scene = new THREE.Scene()
 //#endregion
 
 //#region Texture loader
-const textureLoader = new THREE.TextureLoader()
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 
 const texture = cubeTextureLoader.load([
@@ -119,15 +117,15 @@ const controllerAnimator = new ControllerAnimator(camera, controls)
 //#endregion
 
 //#region Meshes
-const sunAndPlanetData = loadBodyData(textureLoader);
+const sunAndPlanetData = loadBodyData();
 
 const meshStore = new MeshStore(scene, camera, renderer,
     function (mesh) {
-        if (mesh != targetedMesh) {
+        if (mesh != window.targetedMesh.get()) {
             cameraAnimator.animate(mesh.position)
             controllerAnimator.animate(mesh)
 
-            targetedMesh = mesh;
+            window.targetedMesh.set(mesh);
         }
     }, document.getElementById("body-text-identifiers")
 );
@@ -137,9 +135,8 @@ sunAndPlanetData.forEach(planet => {
         if (layer.mat && layer.position) {
             const mesh = meshStore.createSphere(layer.scale, layer.resolution,
                 layer.resolution, layer.mat, layer.position, layer.name)
-
             if (layer.name == "Earth") { // default earth mesh for zoom
-                targetedMesh = mesh;
+                window.targetedMesh.set(mesh);
             }
         }
     })
@@ -177,10 +174,13 @@ const tick = () => {
 tick()
 
 window.addEventListener("load", () => {
+    document.getElementById("welcome").style.animation =
+                "translate 2s forwards cubic-bezier(0.6, 0.8, .6, 1)";
+
     setTimeout(() => {
-        if (targetedMesh) {
-            cameraAnimator.animate(targetedMesh.position)
-            controllerAnimator.animate(targetedMesh)
+        if (window.targetedMesh.get()) {
+            cameraAnimator.animate(window.targetedMesh.get().position)
+            controllerAnimator.animate(window.targetedMesh.get())
 
             setTimeout(() => {
                 const loading = document.getElementById("loading");
@@ -188,5 +188,5 @@ window.addEventListener("load", () => {
                 loading.style.pointerEvents = "none";
             }, 1000)
         }
-    }, 200) // delay to pass jitter frame
+    }, 500) // delay to pass jitter frame
 });

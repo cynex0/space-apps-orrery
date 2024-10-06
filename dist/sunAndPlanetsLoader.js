@@ -41,7 +41,15 @@ const bodyPositions = window.lagrange.planet_positions
         return obj
     })
 
-export default function loadBodyData(textureLoader) {
+const bodies = [];
+
+export default function loadBodyData() {
+    if (bodies.length) {
+        return bodies;
+    }
+
+    const textureLoader = new THREE.TextureLoader();
+
     const bodyMats = [
         [new THREE.MeshBasicMaterial({ // Sun
             map: textureLoader.load('static/8k_sun.jpg'),
@@ -171,8 +179,6 @@ export default function loadBodyData(textureLoader) {
             specularColor: new THREE.Color(0x888888)
         })], // Moon
     ]
-
-    const bodies = [];
 
     for (let body = 0; body <= bodyMats.length; body++) {
         for (let layer = 0; layer < bodyMats[body]?.length; layer++){
