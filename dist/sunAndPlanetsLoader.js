@@ -39,7 +39,15 @@ const sunAndPlanetsPositions = window.lagrange.planet_positions
         return obj
     })
 
-export default function loadSunAndPlanetData(textureLoader) {
+const sunAndPlanets = [];
+
+export default function loadSunAndPlanetData() {
+    if (sunAndPlanets.length) {
+        return sunAndPlanets;
+    }
+
+    const textureLoader = new THREE.TextureLoader();
+
     const sunAndPlanetsMats = [
         [new THREE.MeshBasicMaterial({ // Sun
             map: textureLoader.load('static/8k_sun.jpg'),
@@ -162,10 +170,8 @@ export default function loadSunAndPlanetData(textureLoader) {
         })] // Neptune
     ]
 
-    const sunAndPlanets = [];
-
     for (let planet = 0; planet <= 9; planet++) {
-        for (let layer = 0; layer < sunAndPlanetsMats[planet]?.length; layer++){
+        for (let layer = 0; layer < sunAndPlanetsMats[planet]?.length; layer++) {
             layer == 0 ?
                 sunAndPlanets.push([{
                     resolution: 256,
@@ -182,6 +188,6 @@ export default function loadSunAndPlanetData(textureLoader) {
                 })
         }
     }
-    
+
     return sunAndPlanets;
 }
