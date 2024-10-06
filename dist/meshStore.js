@@ -113,6 +113,10 @@ class MeshStore {
         return mesh
     }
 
+    getMesh(name) {
+        return this.meshes.find(mesh => {return mesh.name === name})
+    }
+
     positionToScreenCoords(mesh, element) {
         let position = new THREE.Vector3();
         position = position.setFromMatrixPosition(mesh.matrixWorld);

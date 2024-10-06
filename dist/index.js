@@ -140,6 +140,60 @@ bodyData.forEach(planet => {
     })
 })
 
+const textureLoader = new THREE.TextureLoader()
+const ringColorMap = textureLoader.load('static/saturn/saturnringcolor.jpg');
+const ringTransparencyMap = textureLoader.load('static/saturn/saturnringpattern.gif');
+
+// Create a large flat plane for the rings
+const ringGeometry = new THREE.RingGeometry(0.175, 0.3, 64); // Plane size based on ring size
+
+// Rotate the plane to be horizontal
+ringGeometry.rotateX(Math.PI / 2);
+
+// Modify UV mapping to apply the texture along the radius
+// Set UVs so that the texture is mapped radially, not across the whole plane
+const uvs = ringGeometry.attributes.uv.array;
+for (let i = 0; i < uvs.length; i += 2) {
+    const x = uvs[i] - 0.5; // Shift UV to be centered on (0,0)
+    const y = uvs[i + 1] - 0.5;
+    const angle = Math.atan2(y, x); // Calculate the angle
+    const radius = Math.sqrt(x * x + y * y); // Calculate the radius
+    uvs[i] = radius; // Map radius to U
+    uvs[i + 1] = (angle / (2 * Math.PI)) + 0.5; // Map angle to V
+}
+ringGeometry.attributes.uv.needsUpdate = true;
+
+// Create the ring material
+const ringMaterial = new THREE.MeshStandardMaterial({
+    map: ringColorMap, // Color map for the rings
+    alphaMap: ringTransparencyMap, // Transparency map for the rings
+    transparent: true, // Enable transparency
+    side: THREE.DoubleSide, // Ensure the rings are visible from both sides
+    depthWrite: false, // Disable depth writing to avoid issues with transparency
+});
+
+// Create the ring mesh
+const rings = new THREE.Mesh(ringGeometry, ringMaterial);
+
+// Position and scale the rings
+rings.scale.set(0.006, 0.006, 0.006); // Adjust the size as needed
+rings.position.set(bodyData[6][0].position.x, bodyData[6][0].position.y, bodyData[6][0].position.z); // Centered around Saturn
+
+// Add the rings to the Saturn object (assuming you have a Saturn mesh)
+scene.add(rings);
+
+// siderial day in seconds
+const rotationSpeeds = [
+    {name: 'Mercury', speed: 5067000},
+    {name: 'Venus', speed: -20996760},
+    {name: 'Earth', speed: 86160},
+    {name: 'Mars', speed: 88560},
+    {name: 'Jupiter', speed: 35700},
+    {name: 'Saturn', speed: 37980},
+    {name: 'Uranus', speed: 62040},
+    {name: 'Neptune', speed: 57600},
+]
+
 loadSmallBodies(window.meshStore);
 //#endregion
 
@@ -153,6 +207,10 @@ let elapsedTime = 0;
 const tick = () => {
     const delta = clock.getElapsedTime() - elapsedTime
     elapsedTime = elapsedTime + delta
+
+    rotationSpeeds.forEach(planet => {
+        meshStore.getMesh(planet.name).rotation.y += (360 / planet.speed) * delta
+    })
 
     controls.update()
     controls.enableDamping = true
