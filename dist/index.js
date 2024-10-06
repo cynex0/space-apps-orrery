@@ -233,7 +233,7 @@ tick()
 
 window.addEventListener("load", () => {
     document.getElementById("welcome").style.animation =
-        "translate 2s forwards cubic-bezier(0.6, 0.8, .6, 1)";
+        "translate 3s forwards cubic-bezier(0.6, 0.8, .6, 1)";
 
     setTimeout(() => {
         if (window.targetedMesh.get()) {
@@ -251,5 +251,5 @@ window.addEventListener("load", () => {
             cameraAnimator.animate(mesh.position)
             controllerAnimator.animate(mesh)
         })
-    }, 500) // delay to pass jitter frame
+    }, 1500) // delay to pass jitter frame
 });
