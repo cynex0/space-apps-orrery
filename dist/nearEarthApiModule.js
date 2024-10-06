@@ -1,8 +1,8 @@
-import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js';
-
+import * as THREE from 'three';
 
 export const getOrbitalElements = async (limit = 1000) => {
-    const apiUrl = `https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=full_name,e,a,q,om,w,i,tp&limit=${limit}`;
+    const apiUrl = 'http://localhost:3000/api/small-bodies';
+
 
     try {
         const response = await fetch(apiUrl);
@@ -20,14 +20,20 @@ export const getOrbitalElements = async (limit = 1000) => {
 
 
 export const calculatePosition = (orbitalElements) => {
-    const {
-        e, // eccentricity
-        a, // semi-major axis
-        tp, // time of perihelion passage (in Julian days)
-        i, // inclination (in degrees)
-        om, // longitude of ascending node (in degrees)
-        w // argument of periapsis (in degrees)
-    } = orbitalElements;
+    const name = orbitalElements[0]; // Name of the body
+    const e = orbitalElements[1];    // eccentricity
+    const a = orbitalElements[2];    // semi-major axis
+    const tp = orbitalElements[7];   // time of perihelion passage (in Julian days)
+    const i = orbitalElements[6];    // inclination (in degrees)
+    const om = orbitalElements[4];   // longitude of ascending node (in degrees)
+    const w = orbitalElements[5];    // argument of periapsis (in degrees)
+
+
+    if (isNaN(a) || isNaN(e) || isNaN(tp) || isNaN(i) || isNaN(om) || isNaN(w)) {
+        console.error('Invalid orbital elements', orbitalElements);
+        return new THREE.Vector3(0, 0, 0); // Return default position if invalid
+    }
+
 
     const AU_TO_METERS = 1.496e11; // 1 AU in meters
     const MU_SUN = 1.327e20; // Standard gravitational parameter for the Sun in m^3/s^2
@@ -36,9 +42,15 @@ export const calculatePosition = (orbitalElements) => {
     const semiMajorAxis = parseFloat(a) * AU_TO_METERS; // Convert AU to meters
     const eccentricity = parseFloat(e);
     const inclination = THREE.MathUtils.degToRad(parseFloat(i)); // Convert degrees to radians
-    const omRad = THREE.MathUtils.degToRad(om); // Convert degrees to radians
-    const wRad = THREE.MathUtils.degToRad(w); // Convert degrees to radians
+    const omRad = THREE.MathUtils.degToRad(parseFloat(om)); // Convert degrees to radians
+    const wRad = THREE.MathUtils.degToRad(parseFloat(w)); // Convert degrees to radians
     const tpJD = parseFloat(tp); // Assuming tp is in Julian Days
+
+    // Validate semi-major axis and eccentricity before proceeding
+    if (semiMajorAxis <= 0 || eccentricity < 0 || eccentricity >= 1) {
+        console.error('Invalid semi-major axis or eccentricity:', { semiMajorAxis, eccentricity });
+        return new THREE.Vector3(0, 0, 0);
+    }
 
    // Calculate orbital period (T) in seconds
    const T = 2 * Math.PI * Math.sqrt(Math.pow(semiMajorAxis, 3) / MU_SUN); // Period in seconds

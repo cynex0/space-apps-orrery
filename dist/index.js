@@ -8,6 +8,7 @@ import MeshStore from './meshStore.js';
 import CameraAnimator from './cameraAnimation.js';
 import ControllerAnimator from './controllerAnimation.js';
 import loadSunAndPlanetData from './sunAndPlanetsLoader.js';
+import loadSmallBodies from './smallBodiesLoader.js';
 
 const canvas = document.querySelector('canvas.webgl')
 let targetedMesh = null;
@@ -120,6 +121,7 @@ const controllerAnimator = new ControllerAnimator(camera, controls)
 
 //#region Meshes
 const sunAndPlanetData = loadSunAndPlanetData(textureLoader);
+loadSmallBodies(scene, textureLoader);
 
 const meshStore = new MeshStore(scene, camera, renderer,
     function (mesh) {
