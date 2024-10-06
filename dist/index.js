@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { TrackballControls } from 'three/addons/controls/TrackballControls.js'
 
 import MeshStore from './meshStore.js';
 import CameraAnimator from './cameraAnimation.js';
@@ -90,7 +90,7 @@ composer.addPass(bloomPass);
 const meshStore = new MeshStore(scene, camera, renderer,
     function (position) {
         cameraAnimator.animate(position)
-    }
+    }, document.getElementById("body-text-identifiers")
 );
 
 const sunAndPlanetData = loadSunAndPlanetData(textureLoader);
@@ -99,7 +99,7 @@ sunAndPlanetData.forEach(planet => {
     planet.forEach(layer => {
         if (layer.mat && layer.position) {
             meshStore.createSphere(layer.scale, layer.resolution,
-                layer.resolution, layer.mat, layer.position)
+                layer.resolution, layer.mat, layer.position, layer.name)
         }
     })
 })
@@ -119,16 +119,18 @@ scene.add(light)
 //#endregion
 
 //#region Controls
-const controls = new OrbitControls(camera, canvas)
+const controls = new TrackballControls(camera, canvas)
 
-controls.distance = 0.2
 controls.minDistance = 0.2;
-controls.maxDistance = 100;
-controls.zoomSpeed = 5;
+controls.maxDistance = 300;
+controls.zoomSpeed = 4;
+controls.panSpeed = 0.8;
+controls.rotateSpeed = 0.5;
+controls.dinamicDampingFactor = 1;
 controls.enableZoom = true;
 controls.enableDamping = true;
 
-const startPlanet = 5
+const startPlanet = 3
 
 controls.target.set(
     sunAndPlanetData[startPlanet][0].position.x,
