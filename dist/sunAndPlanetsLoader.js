@@ -14,14 +14,26 @@ const sunAndPlanetsScales = [
     0.035359 // Neptune
 ]
 
+const sunAndPlanetsNames = [
+    'Sun',
+    'Mercury',
+    'Venus',
+    'Earth',
+    'Mars',
+    'Jupiter',
+    'Saturn',
+    'Uranus',
+    'Neptune'
+]
+
 const sunAndPlanetsPositions = window.lagrange.planet_positions
     .getPositions(new Date())
     .slice(0, 9)
     .map(element => {
         const obj = {
-            x : element.position.x / AU_TO_METERS * 20,
-            y : element.position.y / AU_TO_METERS * 20,
-            z : element.position.z / AU_TO_METERS * 20,
+            x: element.position.x / AU_TO_METERS * 20,
+            y: element.position.y / AU_TO_METERS * 20,
+            z: element.position.z / AU_TO_METERS * 20,
         }
 
         return obj
@@ -58,6 +70,7 @@ export default function loadSunAndPlanetData(textureLoader) {
     for (let index = 0; index <= 9; index++) {
         sunAndPlanets.push({
             resolution: 256,
+            name: sunAndPlanetsNames[index],
             position: sunAndPlanetsPositions[index],
             scale: sunAndPlanetsScales[index],
             mat: sunAndPlanetsMats[index]
