@@ -2,7 +2,7 @@ import { Vector3, Box3 } from 'three';
 import Bezier from "./bezier.js";
 
 const ANIMATION_TIME = 2; // seconds
-const MAX_DISTANCE = 300;
+const MAX_DISTANCE = 10;
 const MIN_FOV = 50;
 const MAX_FOV = 120;
 

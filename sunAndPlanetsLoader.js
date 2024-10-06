@@ -13,7 +13,7 @@ const bodyScales = [
     0.036422, // Uranus
     0.035359, // Neptune
     0.002495, // Moon
-]
+].map(function (element) { return element * 0.00465047; });
 
 const bodyNames = [
     'Sun',
@@ -30,18 +30,26 @@ const bodyNames = [
 
 const bodyPositions = window.lagrange.planet_positions
     .getPositions(new Date())
-    .filter(obj => {return bodyNames.map(s => s.toLowerCase()).includes(obj.name)})
+    .filter(obj => { return bodyNames.map(s => s.toLowerCase()).includes(obj.name) })
     .map(element => {
         const obj = {
-            x: element.position.x / AU_TO_METERS * 20,
-            y: element.position.y / AU_TO_METERS * 20,
-            z: element.position.z / AU_TO_METERS * 20,
+            x: element.position.x / AU_TO_METERS,
+            y: element.position.y / AU_TO_METERS,
+            z: element.position.z / AU_TO_METERS,
         }
 
         return obj
     })
 
-export default function loadBodyData(textureLoader) {
+const bodies = [];
+
+export default function loadBodyData() {
+    if (bodies.length) {
+        return bodies;
+    }
+
+    const textureLoader = new THREE.TextureLoader();
+
     const bodyMats = [
         [new THREE.MeshBasicMaterial({ // Sun
             map: textureLoader.load('static/8k_sun.jpg'),
@@ -124,7 +132,7 @@ export default function loadBodyData(textureLoader) {
             emissiveIntensity: 0.01,
         })], // Jupiter
         [new THREE.MeshPhysicalMaterial({
-            map: textureLoader.load('static/2k_saturn.jpg'),
+            map: textureLoader.load('static/saturn/2k_saturn.jpg'),
             specularColor: new THREE.Color(0x888888),
             roughness: 0.9,
             metalness: 0.1,
@@ -172,10 +180,8 @@ export default function loadBodyData(textureLoader) {
         })], // Moon
     ]
 
-    const bodies = [];
-
     for (let body = 0; body <= bodyMats.length; body++) {
-        for (let layer = 0; layer < bodyMats[body]?.length; layer++){
+        for (let layer = 0; layer < bodyMats[body]?.length; layer++) {
             layer == 0 ?
                 bodies.push([{
                     resolution: 256,
@@ -187,11 +193,11 @@ export default function loadBodyData(textureLoader) {
                 bodies[body].push({
                     resolution: 256,
                     position: bodies[body][layer - 1].position,
-                    scale: bodies[body][layer - 1].scale + (300000 / AU_TO_METERS),
+                    scale: bodies[body][layer - 1].scale + 0.00000001,
                     mat: bodyMats[body][layer]
                 })
         }
     }
-    
+
     return bodies;
 }

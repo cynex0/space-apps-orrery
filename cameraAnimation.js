@@ -1,6 +1,7 @@
 import { Vector3 } from 'three';
 import Bezier from "./bezier.js";
 
+const AU_TO_METERS = 1.496e11;
 const ANIMATION_TIME = 2; // seconds
 
 class CameraAnimator {
@@ -33,7 +34,7 @@ class CameraAnimator {
 
     update(delta) {
         if (this.animationElapsed < ANIMATION_TIME) {
-            const factor = 3 * Bezier.cubicBezier(1, 0, 0, 1, this.animationElapsed / ANIMATION_TIME, ANIMATION_TIME);
+            const factor = Bezier.cubicBezier(1, 0, 0, 1, this.animationElapsed / ANIMATION_TIME, ANIMATION_TIME);
             
             let xVariance = this.targetPosition.x - this.initialPosition.x;
             let yVariance = this.targetPosition.y - this.initialPosition.y;
@@ -49,24 +50,23 @@ class CameraAnimator {
             yVariance = yVariance / magnitude;
             zVariance = zVariance / magnitude;
             
-
-            if (factor < 1.5) { // warp effect
+            if (factor < 0.5) { // warp effect
                 this.controls.target.set(
                     this.initialPosition.x +
-                    factor * xVariance,
+                    factor * xVariance / AU_TO_METERS,
                     this.initialPosition.y +
-                    factor * yVariance,
+                    factor * yVariance / AU_TO_METERS,
                     this.initialPosition.z +
-                    factor * zVariance,
+                    factor * zVariance / AU_TO_METERS,
                 )
             } else {
                 this.controls.target.set(
                     this.targetPosition.x -
-                    (3 - factor) * xVariance,
+                    (1 - factor) * xVariance / AU_TO_METERS * 5,
                     this.targetPosition.y -
-                    (3 - factor) * yVariance,
+                    (1 - factor) * yVariance / AU_TO_METERS * 5,
                     this.targetPosition.z -
-                    (3 - factor) * zVariance,
+                    (1 - factor) * zVariance / AU_TO_METERS * 5,
                 )
             }
 
