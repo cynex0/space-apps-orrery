@@ -1,0 +1,83 @@
+body {
+    overflow: hidden !important;
+    padding: 0;
+    margin: 0;
+    background: black;
+    font-family: "DM Sans", sans-serif;
+}
+
+.fixed {
+    pointer-events: none;
+    user-select: none;
+    top: 0;
+    left: 0;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+#loading {
+    z-index: 100;
+    background: black;
+    transition: 1s;
+    pointer-events: all;
+}
+
+.menu {
+    z-index: 10;
+}
+
+#nasa {
+    pointer-events: none;
+    opacity: 0.5;
+    width: 12rem;
+    height: 5rem;
+    bottom: 2rem;
+    right: 2rem;
+    position: absolute;
+    object-fit: contain;
+}
+
+.options {
+    position: absolute;
+    padding: 2rem;
+    transition: 0.3s;
+    bottom: 0;
+    left: 0;
+    opacity: 0.5;
+    color: white;
+}
+
+.options:hover {
+    opacity: 1;
+}
+
+.options * {
+    pointer-events: all;
+    cursor: pointer;
+}
+
+.options>div {
+    font-size: 1rem;
+    gap: 0.2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.body-label {
+    position: absolute;
+    text-shadow: black 1px 0 10px;
+    cursor: pointer;
+    pointer-events: all;
+    margin: 0;
+    padding: 0;
+    line-height: 80%;
+    padding-bottom: 0.4rem;
+    overflow: visible;
+    font-size: 1.5rem;
+    color: white;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+}
